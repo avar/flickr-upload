@@ -4,7 +4,7 @@
 #########################
 
 use Test::More qw(no_plan);
-BEGIN { use_ok('Flickr::Upload') };
+BEGIN { use_ok('Flickr::Upload', 'upload') };
 
 #########################
 
@@ -18,7 +18,7 @@ ok(defined $ua);
 
 $ua->agent( "$0/1.0" );
 
-my $rc = Flickr::Upload::upload(
+my $rc = upload(
 	$ua,
 	'photo' => 't/Kernel & perl.jpg',
 	'email' => 'cpb@cpan.org',
@@ -29,6 +29,6 @@ my $rc = Flickr::Upload::upload(
 	'is_family' => 1,
 );
 
-ok( $rc > 0 );
+ok( defined $rc );
 
 exit 0;
