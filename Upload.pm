@@ -176,9 +176,7 @@ sub make_upload_request(%) {
 		$args{photo} = [ $args{photo} ];
 	}
 
-	return POST $uri,
-		'Content_Type' => 'form-data',
-		'Content' => [ %args ];
+	return POST $uri, 'Content_Type' => 'form-data', 'Content' => \%args;
 }
 
 =head2 upload_request
