@@ -1,0 +1,6 @@
+ChangeLog
+Makefile.PL
+MANIFEST
+README
+t/Flickr-Upload.t
+Upload.pm
