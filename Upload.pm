@@ -27,6 +27,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
+	upload
 );
 
 our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
@@ -63,36 +64,30 @@ sub upload {
 	return undef unless $args{'photo'} and -f $args{'photo'};
 	return undef unless $args{'email'};
 	return undef unless $args{'password'};
-	return undef unless $args{'tags'};
 
-	my $tags = join( " ", @{$args{'tags'}} );
 	my $photo = $args{'photo'};
 	my $uri = $args{'uri'} || 'http://www.flickr.com/tools/uploader_go.gne';
 
 	# strip these from the hash so we can just drop it into the request
-	delete $args{$_} for(qw(tags photo uri));
+	delete $args{$_} for(qw(photo uri));
 
 	my $req = POST $uri,
 		'Content_Type' => 'form-data',
 		'Content' => [
-			'tags' => $tags,
 			'photo' => [ $photo ],
 			%args,
 		];
 
 	my $res = $ua->request( $req );
 
-print STDERR "\n",$res->content(),"\n\n";
-
 	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
 
-	# FIXME: should figure out the error code and warn()
+	# FIXME: should warn() with just the error string.
 	unless( uploader_status($tree) eq "ok" ) {
 		warn($res->content());
 		return undef;
 	}
 
-	# done
 	return 1;
 }
 
@@ -109,14 +104,12 @@ Flickr::Upload - Upload images to L<flickr.com>
 	use Flickr::Upload qw(upload);
 
 	my $ua = LWP::UserAgent->new;
-	$ua->agent( "$0/1.0" );
-
 	upload(
 		$ua,
 		'photo' => '/tmp/image.jpg',
 		'email' => 'self@example.com',
 		'password' => 'pr1vat3',
-		'tags' => ['me', 'myself', 'eye'],
+		'tags' => 'me myself eye',
 		'is_public' => 1,
 		'is_friend' => 1,
 		'is_family' => 1
@@ -130,14 +123,39 @@ Upload an image to L<flickr.com>.
 
 =head2 upload
 
+	upload(
+		$ua,
+		'photo' => '/tmp/image.jpg',
+		'email' => 'self@example.com',
+		'password' => 'pr1vat3',
+		'tags' => 'me myself eye',
+		'is_public' => 1,
+		'is_friend' => 1,
+		'is_family' => 1
+	);
+
+Taking a L<LWP::UserAgent> as an argument (C<$ua>), this is basically a
+direct interface to the Flickr Photo Upload API. Required parameters are
+C<photo>, C<email>, and C<password>. C<uri> may be provided if you don't
+want to use the default, L<http://www.flickr.com/tools/uploader_go.gne>
+(i.e. you have a custom server running somewhere that supports the API).
+
+Returns non-zero on success, C<undef> on failure.
 
 =head1 SEE ALSO
 
+L<http://flickr.com/services/api/>.
+
 =head1 AUTHOR
 
-Christophe Beauregard, E<lt>cpb@cpan.org<gt>
+Christophe Beauregard, L<cpb@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
+
+This module is not an official Flickr.com (or Ludicorp) service. I'm sure
+if they knew about it they could suggest some additional words saying just
+how little they're responsible for anything that might go wrong with this
+code.
 
 Copyright (C) 2004 by Christophe Beauregard
 
