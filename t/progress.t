@@ -31,7 +31,7 @@ die unless ref($gen) eq "CODE";
 $req->content(
 	sub {
 		my $chunk = &$gen();
-		print "." x (length($chunk)/1024);
+		print "." x (length($chunk)/1024) if defined $chunk;
 		return $chunk;
 	}
 );
