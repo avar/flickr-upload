@@ -14,16 +14,11 @@ use Tk::PNG;
 use Tk::FileSelect;
 use Tk::DropSite;
 
-use Tk::HTML::IO;
 use LWP::UserAgent;
 
-######################################################################
-my $version = qw($Revision$)[1];
-my $statusmsg = "$0 $version";
-my $ua = LWP::UserAgent->new;
-$ua->agent( "thkr_upload/$version" );
+our $VERSION = qw($Revision$)[1];
 
-######################################################################
+#########################################################################
 my $preview_height = 128;
 
 my %args = (
@@ -67,6 +62,7 @@ my @photos = @ARGV;
 
 my $desc;	# description widget
 my $tags;	# tags widget
+my $statusmsg = "$0 $VERSION";
 my $preview;
 my $logoimage;
 
@@ -124,7 +120,10 @@ $filemenu->command( -label => 'Open',
 );
 $filemenu->separator();
 $filemenu->command( -label => 'Quit',
-	-command => sub { exit(0) }
+	-command => sub {
+		# FIXME: warn user about uploads in progress/queued
+		$toplevel->destroy()
+	}
 );
 
 my $helpmenu = $menubar->cascade( -label => '~Help',);
@@ -197,9 +196,8 @@ my %flags = (
 	Friends => 'is_friend',
 	Family => 'is_family',
 	Public => 'is_public',
-	Async => 'async',
 );
-for( qw(Friends Family Public Async) ) {
+for( qw(Friends Family Public) ) {
 	push @photo_widgets, $frame->Checkbutton( -text => $_,
 		-variable => \$args{$flags{$_}} )->pack( -side => 'left' );
 }
@@ -240,44 +238,49 @@ $preview->DropSite(
 $frame = $toplevel->Frame()->pack( -side => 'top', -fill => 'x' );
 push @photo_widgets, $frame->Button( -text => 'Upload',
 	-command => sub {
+		# upload the current photo with the current variables. We need to get
+		# description and tags separately from the Text widgets. Everything
+		# else has already been placed in %args.
+		$args{description} = $desc->Contents();
+		$args{tags} = $tags->Contents();
+
+		$statusmsg = "Queueing $args{photo}...";
 		upload_photo(); # add to upload queue
-		shift @photos;	 # remove current photo from list
+		shift @photos if @photos;	 # remove current photo from list
 		update_photo_widgets();
 	} )->pack( -side => 'left' );
 push @photo_widgets, $frame->Button( -text => 'Skip',
 	-command => sub {
-		shift @photos;	 # remove current photo from list
+		shift @photos if @photos;	 # remove current photo from list
 		update_photo_widgets();
 	} )->pack( -side => 'left' );
 
-my $status = $toplevel->Label( -textvariable => \$statusmsg )->pack(
+$toplevel->Label( -textvariable => \$statusmsg )->pack(
 	-side => 'top', -fill => 'x' );
-#########################################################################
 
+#########################################################################
 update_photo_widgets();
 
 MainLoop();
 
 exit 0;
 
-#########################################################################
-my @tickets;
-
+######################################################################
 sub upload_photo {
-	# upload the current photo with the current variables. We need to get
-	# description and tags separately from the Text widgets. Everything
-	# else has already been placed in %args.
-	$args{description} = $desc->Contents();
-	$args{tags} = $tags->Contents();
+	print STDERR "Uploading photo\n";
+	print STDERR "\t$_ = $args{$_}\n" for(keys %args);
 
-	$statusmsg = "Uploading $args{photo}...";
+	$args{async} = 1;
 
-	my $id = upload( $ua, %args );
-	if( defined $id ) {
-		$statusmsg = "Success, ticket $id";
-		push @tickets, $id;
+	# doing this nicely might involve a LWP HTTP protocol implementor...
+
+	my $ua = LWP::UserAgent->new;
+	$ua->agent( "thkr_upload/$VERSION" );
+	my $rc = upload( $ua, %args );
+	if( defined $rc ) {
+		$statusmsg = "Uploaded, ticket number $rc";
 	} else {
-		$statusmsg = "Failed!";
+		$statusmsg = "Upload failed";
 	}
 }
 
