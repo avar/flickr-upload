@@ -29,6 +29,6 @@ my $rc = upload(
 	'is_family' => 1
 );
 
-ok( not $rc );
+ok( not defined $rc );
 
 exit 0;
