@@ -21,7 +21,7 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-	'all' => [ qw(upload make_upload_request upload_request) ],
+	'all' => [ qw(upload check_upload make_upload_request upload_request) ],
 );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -94,6 +94,7 @@ Upload an image to L<flickr.com>.
 		'is_public' => 1,
 		'is_friend' => 1,
 		'is_family' => 1
+		'async' => 0,
 	);
 
 Taking a L<LWP::UserAgent> as an argument (C<$ua>), this is basically a
@@ -106,6 +107,11 @@ Returns the resulting identifier of the uploaded photo on success,
 C<undef> on failure. According to the API documentation, after an upload the
 user should be directed to the page
 L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
+
+If the C<async> option is non-zero, the photo will be uploaded
+asynchronously and a successful upload returns a ticket number. See
+L<http://flickr.com/services/api/upload.async.html>. The caller can then
+periodically poll for a photo id using the C<check_upload> call.
 
 =cut
 #'
@@ -125,6 +131,66 @@ sub upload($%) {
 	return undef unless defined $req;
 
 	return upload_request( $ua, $req );
+}
+
+=head2 check_upload
+
+	my %status2txt = (0 => 'not complete', 1 => 'completed', 2 => 'failed');
+	my @rc = check_upload( $ua, @ticketids );
+	for( @rc ) {
+		print "Ticket $_->{id} has $status2txt{$_->{complete}}\n";
+		print "\tPhoto id is $_->{photoid}\n" if exists $_->{photoid};
+	}
+
+This function will check the status of one or more asynchronous uploads. A
+list of ticket identifiers are provided (C<@ticketids>) and each is
+checked.
+
+On success, a list of hash references is returned. Each
+hash contains a C<id> (the ticket id), C<complete> and, if
+completed, C<photoid> members. C<invalid> may also be returned.
+Status codes (for C<complete>) are as documented at
+L<http://flickr.com/services/api/upload.async.html> and, actually, the
+returned fields are identical to those listed in the C<ticket> tag of the
+response.  The returned list isn't guaranteed to be in any particular order.
+
+This function polls a web server, so avoid calling it too frequently.
+
+=cut
+#'
+
+sub check_upload($@) {
+	my $ua = shift;
+	die "expecting a LWP::UserAgent" unless $ua->isa('LWP::UserAgent');
+
+	return () unless @_;	# no tickets
+
+	my $uri = 'http://www.flickr.com/tools/uploader_check.gne?tickets='
+		. ((@_ == 1) ? $_[0] : join(',', @_));
+
+	my $res = $ua->request( GET $uri );
+	return () unless defined $res;
+
+	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
+	return () unless defined $tree;
+
+	my @rc;
+	return undef unless defined $tree and exists $tree->{'children'};
+	for my $n ( @{$tree->{'children'}} ) {
+		next unless $n->{'name'} eq "uploader";
+		next unless exists $n->{'children'};
+
+		for my $m (@{$n->{'children'}} ) {
+			next unless exists $m->{'name'}
+				and $m->{'name'} eq 'ticket'
+				and exists $m->{'attributes'};
+
+			# okay, this is maybe a little lazy...
+			push @rc, $m->{'attributes'};
+		}
+	}
+
+	return @rc;
 }
 
 =head2 make_upload_request
@@ -166,9 +232,6 @@ sub make_upload_request(%) {
 	# passed in separately, so remove from the hash
 	delete $args{uri};
 
-	# we don't do async
-	$args{async} = 0;
-
 	if( exists $args{photo} and ref $args{photo} ne "ARRAY" ) {
 		# unlikely that the caller would set up the photo as an array,
 		# but...
@@ -187,10 +250,10 @@ executes the request and processes the result as a flickr upload. It's
 assumed that the request looks a lot like something created with
 L<make_upload_request>.
 
-Returns the resulting identifier of the uploaded photo on success,
-C<undef> on failure. According to the API documentation, after an upload the
-user should be directed to the page
-L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
+Returns the resulting identifier of the uploaded photo (or ticket for
+asynchronous uploads) on success, C<undef> on failure. According to the
+API documentation, after an upload the user should be directed to the
+page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 =cut
 #'
@@ -206,21 +269,18 @@ sub upload_request($$) {
 	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
 
 	my $photoid = uploader_tag($tree, 'photoid');
-	unless( defined $photoid ) {
+	my $ticketid = uploader_tag($tree, 'ticketid');
+	unless( defined $photoid or defined $ticketid ) {
 		my $err = uploader_tag($tree, 'verbose');
 		print STDERR "upload failed: ", ($err || $res->content()), "\n";
 		return undef;
 	}
 
-	return $photoid;
+	return (defined $photoid) ? $photoid : $ticketid;
 }
 
 1;
 __END__
-
-=head1 BUGS
-
-Asynchronous uploading isn't supported.
 
 =head1 SEE ALSO
 
