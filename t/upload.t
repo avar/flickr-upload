@@ -18,16 +18,17 @@ ok(defined $ua);
 
 $ua->agent( "$0/1.0" );
 
-my $rc = flickr_upload(
-	'filename' => 't/Kernel & perl.jpg',
+my $rc = Flickr::Upload::upload(
+	$ua,
+	'photo' => 't/Kernel & perl.jpg',
 	'email' => 'cpb@cpan.org',
-	'password' => 'fl1ckrt3st',
+	'password' => '******',
 	'tags' => ['me', 'myself', 'eye'],
 	'is_public' => 1,
 	'is_friend' => 1,
-	'is_family' => 1
+	'is_family' => 1,
 );
 
-ok( $rc );
+ok( $rc > 0 );
 
 exit 0;

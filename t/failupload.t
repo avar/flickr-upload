@@ -18,8 +18,9 @@ ok(defined $ua);
 
 $ua->agent( "$0/1.0" );
 
-my $rc = flickr_upload(
-	'filename' => 't/Kernel & perl.jpg',
+my $rc = Flickr::Upload::upload(
+	$ua,
+	'photo' => 't/Kernel & perl.jpg',
 	'email' => 'cpb@cpan.org',
 	'password' => 'bad_pass',
 	'tags' => ['me', 'myself', 'eye'],
@@ -28,6 +29,6 @@ my $rc = flickr_upload(
 	'is_family' => 1
 );
 
-ok( not defined $rc );
+ok( not $rc );
 
 exit 0;
