@@ -111,10 +111,19 @@ my $filemenu = $menubar->cascade( -label => '~File' );
 my $start = '.';
 $filemenu->command( -label => 'Open',
 	-command => sub {
-		my $file = $toplevel->FileSelect( -directory => $start )->Show();
-		if( defined $file and -f $file ) {
-			$start = dirname($file);
-			add_photo( $file );
+		my $images = [
+			['Image Files', [qw(.jpg .jpeg .gif .png .tif .tiff)]],
+			['All Files', '*' ],
+		];
+		my $files = $toplevel->getOpenFile( -filetypes => $images,
+			-multiple => 1, -title => "Open Photo(s)" );
+		return unless defined $files;
+		if( ref $files ) {
+			for( @{$files} ) {
+				add_photo( $_ ) if -f $_;
+			}
+		} elsif( -f $files ) {
+			add_photo( $files );
 		}
 	}
 );
@@ -267,11 +276,9 @@ exit 0;
 
 ######################################################################
 sub upload_photo {
-	print STDERR "Uploading photo\n";
-	print STDERR "\t$_ = $args{$_}\n" for(keys %args);
-
 	$args{async} = 1;
 
+	# FIXME: this kinda sucks... Need some kinda of progress indicator.
 	# fork/exec/pipe with Tk filevents is the recommended approach...
 
 	my $ua = LWP::UserAgent->new;
