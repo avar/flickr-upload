@@ -294,7 +294,7 @@ Christophe Beauregard, L<cpb@cpan.org>
 
 This module is not an official Flickr.com (or Ludicorp) service.
 
-Copyright (C) 2004 by Christophe Beauregard
+Copyright (C) 2004,2005 by Christophe Beauregard
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
