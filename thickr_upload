@@ -3,10 +3,11 @@
 use strict;
 use warnings;
 
-use Flickr::Upload qw(upload check_upload);
+use Flickr::Upload qw(upload_request make_upload_request check_upload);
 use Getopt::Long;
 use Pod::Usage;
 use File::Basename;
+use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 
 use Tk;
 use Tk::JPEG;
@@ -14,6 +15,9 @@ use Tk::PNG;
 use Tk::FileSelect;
 use Tk::DropSite;
 
+use IO::Handle;
+use IO::Pipe;
+use POSIX qw(:errno_h);
 use LWP::UserAgent;
 
 our $VERSION = qw($Revision$)[1];
@@ -98,8 +102,8 @@ sub update_photo_widgets() {
 }
 
 sub add_photo {
-	# put the new photo at the front of the list
-	unshift @photos, $_[0];
+	# put the new photo(s) at the front of the list
+	unshift @photos, @_;
 	update_photo_widgets();
 }
 
@@ -119,9 +123,7 @@ $filemenu->command( -label => 'Open',
 			-multiple => 1, -title => "Open Photo(s)" );
 		return unless defined $files;
 		if( ref $files ) {
-			for( @{$files} ) {
-				add_photo( $_ ) if -f $_;
-			}
+			add_photo( (grep { -f $_ } @{$files}) );
 		} elsif( -f $files ) {
 			add_photo( $files );
 		}
@@ -278,16 +280,65 @@ exit 0;
 sub upload_photo {
 	$args{async} = 1;
 
-	# FIXME: this kinda sucks... Need some kinda of progress indicator.
-	# fork/exec/pipe with Tk filevents is the recommended approach...
+	my $pipe = new IO::Pipe;
 
-	my $ua = LWP::UserAgent->new;
-	$ua->agent( "thickr_upload/$VERSION" );
-	my $rc = upload( $ua, %args );
-	if( defined $rc ) {
-		$statusmsg = "Uploaded, ticket number $rc";
+	unless( defined $pipe ) {
+		$statusmsg = "Failed to open uploader process!";
+		return;
+	}
+
+	my $pid = fork();
+	if( $pid ) {
+		# parent...
+		$pipe->reader();
+
+		# create a Tk fileevent to handle the response from the upload
+		$toplevel->fileevent( $pipe, "readable" => sub {
+				my $buf;
+				# ordinarily getline() would be bad except we know
+				# that the uploader feeds us a short line at a time.
+				if( not $pipe->eof() and $buf = $pipe->getline() ) {
+					$buf =~ s/\n//gso;
+					$statusmsg = $buf;
+					return;
+				}
+
+				# error or eof... remove the fileevent
+				$toplevel->fileevent( $pipe, "readable" => undef);
+				$pipe->close();
+			} );
 	} else {
-		$statusmsg = "Upload failed";
+		$pipe->writer();
+		$pipe->autoflush(1);
+
+		my $req = make_upload_request( %args );
+
+		# replace the content generator sub with one that spits out
+		# progress info. This will go out the pipe and
+		# back to the uploader... It doesn't matter _what_ we spit out, so
+		# newlines are handy because they implicitly flush the output
+		# FIXME: this is kinda useless right now...
+#		my $gen = $req->content();
+#		$req->content(
+#			sub {
+#				my $chunk = &$gen();
+#				print ".\n" if defined $chunk;
+#				return $chunk;
+#			}
+#		);
+
+		my $ua = LWP::UserAgent->new;
+		$ua->agent( "thickr_upload/$VERSION" );
+
+		my $rc = upload_request( $ua, $req );
+		if( defined $rc ) {
+			print $pipe "Uploaded $args{photo}, ticket number $rc\n";
+			# FIXME: should we wait for the photoid?
+		} else {
+			print $pipe "Failed to upload $args{photo}\n";
+		}
+
+		CORE::exit 0;
 	}
 }
 
