@@ -211,9 +211,9 @@ for( qw(Friends Family Public) ) {
 		-variable => \$args{$flags{$_}} )->pack( -side => 'left' );
 }
 
-my $logo = "./flickr_logo_beta.gif";
+# we coule create our own or use the flickr logo. Or just have an empty
+# one.
 $logoimage = $toplevel->Photo();
-$logoimage->read($logo);	# show a pretty logo when we're not doing anything
 
 $preview = $appframe->Label( -image => $logoimage, -height => 128
 )->pack( -side => 'top', -fill => 'x' );
