@@ -21,13 +21,13 @@ our @ISA = qw(Exporter);
 # This allows declaration	use Flickr::Upload ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-) ] );
+our %EXPORT_TAGS = (
+	'all' => [ qw(upload) ],
+);
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	upload
 );
 
 our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
@@ -36,8 +36,9 @@ our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r,
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
-sub uploader_status($) {
+sub uploader_tag($$) {
 	my $t = shift;
+	my $tag = shift;
 
 	return undef unless defined $t and exists $t->{'children'};
 
@@ -46,9 +47,9 @@ sub uploader_status($) {
 		next unless exists $n->{'children'};
 
 		for my $m (@{$n->{'children'}} ) {
-			next unless exists $m->{'name'};
-			next unless $m->{'name'} eq "status";
-			next unless exists $m->{'children'};
+			next unless exists $m->{'name'}
+				and $m->{'name'} eq $tag
+				and exists $m->{'children'};
 
 			return $m->{'children'}->[0]->{'content'};
 		}
@@ -82,13 +83,14 @@ sub upload {
 
 	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
 
-	# FIXME: should warn() with just the error string.
-	unless( uploader_status($tree) eq "ok" ) {
-		warn($res->content());
+	my $photoid = uploader_tag($tree, 'photoid');
+	unless( defined $photoid ) {
+		my $err = uploader_tag($tree, 'verbose');
+		print STDERR "upload failed: ", ($err || $res->content()), "\n";
 		return undef;
 	}
 
-	return 1;
+	return $photoid;
 }
 
 1;
@@ -123,7 +125,7 @@ Upload an image to L<flickr.com>.
 
 =head2 upload
 
-	upload(
+	my $photoid = upload(
 		$ua,
 		'photo' => '/tmp/image.jpg',
 		'email' => 'self@example.com',
@@ -140,7 +142,10 @@ C<photo>, C<email>, and C<password>. C<uri> may be provided if you don't
 want to use the default, L<http://www.flickr.com/tools/uploader_go.gne>
 (i.e. you have a custom server running somewhere that supports the API).
 
-Returns non-zero on success, C<undef> on failure.
+Returns the resulting identifier of the uploaded photo on success,
+C<undef> on failure. According to the API documentation, after an upload the
+user should be directed to the page
+L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 =head1 SEE ALSO
 
