@@ -4,13 +4,18 @@ use strict;
 use warnings;
 
 use Flickr::Upload qw(upload check_upload);
-use LWP::UserAgent;
 use Getopt::Long;
 use Pod::Usage;
 use File::Basename;
 
 use Tk;
 use Tk::JPEG;
+use Tk::PNG;
+use Tk::FileSelect;
+use Tk::DropSite;
+
+use Tk::HTML::IO;
+use LWP::UserAgent;
 
 ######################################################################
 my $version = qw($Revision$)[1];
@@ -19,6 +24,8 @@ my $ua = LWP::UserAgent->new;
 $ua->agent( "thkr_upload/$version" );
 
 ######################################################################
+my $preview_height = 128;
+
 my %args = (
 	'is_public' => 1,
 	'is_friend' => 1,
@@ -79,28 +86,40 @@ sub update_photo_widgets() {
 		$args{photo} = $photos[0];
 		$args{title} = basename $args{photo};
 		$args{title} =~ s/\.[a-z0-9]{3,4}$//io;	# strip extension
-		$preview->configure( -image => $image );
+
+		# need to shrink the input image down to fit the preview
+		my $smaller = $preview->Photo();
+		$smaller->copy( $image,
+			-subsample => $image->height/$preview_height );
+		$preview->configure( -image => $smaller );
 	} else {
 		$args{photo} = '';
 		$preview->configure( -image => $logoimage );
 		$_->configure( -state => 'disabled' ) for @photo_widgets;
 	}
+
+	$image->delete;
+}
+
+sub add_photo {
+	# put the new photo at the front of the list
+	unshift @photos, $_[0];
+	update_photo_widgets();
 }
 
 #######################################################################
 my $toplevel = new MainWindow();
-my $menubar = $toplevel->Frame()->pack(
-	-anchor => 'nw', -side => 'top', -fill => 'x' );
-my $filemenu = $menubar->Menubutton( -text => 'File' )->pack( -side => 'left');
+my $menubar = $toplevel->Menu();
+
+my $filemenu = $menubar->cascade( -label => '~File' );
 my $start = '.';
 $filemenu->command( -label => 'Open',
 	-command => sub {
 		my $file = $toplevel->FileSelect( -directory => $start )->Show();
-		if( -f $file ) {
+		if( defined $file and -f $file ) {
 			$start = dirname($file);
-			push @photos, $file;
+			add_photo( $file );
 		}
-		update_photo_widgets();
 	}
 );
 $filemenu->separator();
@@ -108,22 +127,19 @@ $filemenu->command( -label => 'Quit',
 	-command => sub { exit(0) }
 );
 
-my $helpmenu = $menubar->Menubutton( -text => 'Help' )->pack( -side => 'left');
+my $helpmenu = $menubar->cascade( -label => '~Help',);
 $helpmenu->command( -label => 'About',
 	-command => sub {
-		my $dialog = new MainWindow;
-
-		$dialog->Label(
-			-text => 'thkr_upload ' . qw($Revision$)[1]
+		my $msg = $toplevel->messageBox( 
+			-title => 'About thkr_upload',
+			-type => 'Ok',
+			-message => 'thkr_upload ' . qw($Revision$)[1]
 				. "\npart of Flickr::Upload"
-				. "\ncpb\@cpan.org"
-		)->pack( -side => 'top' );
-
-		$dialog->Button( -text => 'Dismiss', -command => sub {
-			$dialog->destroy();
-		} )->pack( -side => 'top' );
+				. "\n\ncpb\@cpan.org" );
 	}
 );
+
+$toplevel->configure( -menu => $menubar );
 
 my $appframe = $toplevel->Frame()->pack(
 	-anchor => 'nw', -side => 'top', -fill => 'x' );
@@ -192,9 +208,34 @@ my $logo = "./flickr_logo_beta.gif";
 $logoimage = $toplevel->Photo();
 $logoimage->read($logo);	# show a pretty logo when we're not doing anything
 
-$preview = $appframe->Label( -image => $logoimage,
-	-width => 128, -height => 128,
+$preview = $appframe->Label( -image => $logoimage, -height => 128
 )->pack( -side => 'top', -fill => 'x' );
+
+# configure the preview as a drag 'n drop target
+$preview->DropSite(
+	-dropcommand => sub {
+		print STDERR "Got drop ", join(',',@_), "\n";
+		my $selection = shift;
+		my $filename;
+		eval {
+			if ($^O eq 'MSWin32') {
+				$filename = $preview->SelectionGet(-selection => $selection,
+					'STRING');
+			} else {
+				$filename = $preview->SelectionGet(-selection => $selection,
+					'FILE_NAME');
+			}
+		};
+		unless( defined $filename ) {
+			$filename = $preview->SelectionGet(-selection => $selection,
+				'STRING');
+			# HACK for Konqueror
+			$filename =~ s/^file://o if defined $filename;
+		}
+		add_photo( $filename ) if defined $filename and -f $filename;
+	},
+	-droptypes => ($^O eq 'MSWin32' ? 'Win32' : ['XDND', 'Sun'])
+);
 
 $frame = $toplevel->Frame()->pack( -side => 'top', -fill => 'x' );
 push @photo_widgets, $frame->Button( -text => 'Upload',
@@ -211,6 +252,7 @@ push @photo_widgets, $frame->Button( -text => 'Skip',
 
 my $status = $toplevel->Label( -textvariable => \$statusmsg )->pack(
 	-side => 'top', -fill => 'x' );
+#########################################################################
 
 update_photo_widgets();
 
@@ -228,13 +270,7 @@ sub upload_photo {
 	$args{description} = $desc->Contents();
 	$args{tags} = $tags->Contents();
 
-print STDERR "Uploading...\n";
-for( keys %args ) {
-	print "$_ => $args{$_}\n";
-}
-
 	$statusmsg = "Uploading $args{photo}...";
-	DoOneEvent();	# trigger statusbar update
 
 	my $id = upload( $ua, %args );
 	if( defined $id ) {
@@ -256,11 +292,22 @@ thkr_upload - Upload photos to C<flickr.com> from a GUI
 
 thkr_upload --email <email> --password <password> [--title <title>]
 	[--description description] [--public <0|1>] [--friend <0|1>]
-	[--family <0|1>] [--tag <tag>] <photos...>
+	[--family <0|1>] [--tag <tag>] [<photos...>]
 
 =head1 DESCRIPTION
 
 GUI tool to upload images to the L<Flickr.com> service.
+
+Photos can be access in three ways:
+
+=item listing them on the command-line
+
+=item loading them via the C<File|Open> menu
+
+=item drag and drop to the preview icon
+
+The user goes through the photo list updating fields and uploading images.
+Additional photos can be added at any point in the process.
 
 =head1 OPTIONS
 
