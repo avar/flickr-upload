@@ -29,8 +29,8 @@ GetOptions(
 	'email=s' => sub { $args{$_[0]} = $_[1] },
 	'password=s' => sub { $args{$_[0]} = $_[1] },
 	'public=i' => sub { $args{is_public} = $_[1] },
-	'friend=i' => sub { $args{is_public} = $_[1] },
-	'family=i' => sub { $args{is_public} = $_[1] },
+	'friend=i' => sub { $args{is_friend} = $_[1] },
+	'family=i' => sub { $args{is_family} = $_[1] },
 	'title=s' => sub { $args{$_[0]} = $_[1] },
 	'description=s' => sub { $args{$_[0]} = $_[1] },
 ) or pod2usage(2);
