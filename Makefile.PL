@@ -1,6 +1,10 @@
 use 5.008003;
 use ExtUtils::MakeMaker;
 
+sub MY::postamble {
+	return "ChangeLog:\n\tcvs2cl.pl\n\n";
+}
+
 WriteMakefile(
 	NAME              => 'Flickr::Upload',
 	VERSION_FROM      => 'Upload.pm',
@@ -12,4 +16,6 @@ WriteMakefile(
 		'XML::Parser::Lite::Tree' => 0.03,
 	},
 	'EXE_FILES' => [ 'flickr_upload' ],
+	'clean' => { FILES => 'ChangeLog' },
+	'depend' => { 'distdir' => 'ChangeLog' },
 );
