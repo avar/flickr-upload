@@ -58,7 +58,7 @@ sub uploader_tag($$) {
 
 =head1 NAME
 
-Flickr::Upload - Upload images to L<flickr.com>
+Flickr::Upload - Upload images to C<flickr.com>
 
 =head1 SYNOPSIS
 
