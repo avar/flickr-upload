@@ -272,7 +272,7 @@ sub upload_photo {
 
 	$args{async} = 1;
 
-	# doing this nicely might involve a LWP HTTP protocol implementor...
+	# fork/exec/pipe with Tk filevents is the recommended approach...
 
 	my $ua = LWP::UserAgent->new;
 	$ua->agent( "thkr_upload/$VERSION" );
