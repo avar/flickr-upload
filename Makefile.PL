@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 
 sub MY::postamble {
-	return "ChangeLog:\n\tcvs2cl.pl -r --show-dead -S --utc\n\n";
+	return "ChangeLog:\n\tcvs2cl.pl -r --no-wrap --show-dead -S --utc\n\n";
 }
 
 WriteMakefile(
