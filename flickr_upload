@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Flickr::Upload qw(upload);
+use LWP::UserAgent;
+use Getopt::Long;
+use Pod::Usage;
+
+my %args;
+my @tags = ();
+my $help = 0;
+my $man = 0;
+
+GetOptions(
+	'help|?' => \$help,
+	'man' => \$man,
+	'tags=s' => \@tags,
+	'email=s' => sub { $args{$_[0]} = $_[1] },
+	'password=s' => sub { $args{$_[0]} = $_[1] },
+	'public=i' => sub { $args{is_public} = $_[1] },
+	'friend=i' => sub { $args{is_public} = $_[1] },
+	'family=i' => sub { $args{is_public} = $_[1] },
+	'title=s' => sub { $args{$_[0]} = $_[1] },
+	'description=s' => sub { $args{$_[0]} = $_[1] },
+) or pod2usage(2);
+pod2usage(1) if $help;
+pod2usage(-exitstatus => 0, -verbose => 2) if $man;
+
+die "No email" unless exists $args{'email'};
+die "No password" unless exists $args{'password'};
+die "No photos" unless @ARGV;
+
+my $version = qw($Revision$)[1];
+
+my $ua = LWP::UserAgent->new;
+$ua->agent( "flickr_upload/$version" );
+
+$args{'tags'} = join( " ", @tags ) if @tags;
+
+for( @ARGV ) {
+	print 'Uploading ', $_, '...';
+
+	my $rc = Flickr::Upload::upload( $ua, 'photo' => $_, %args );
+
+	print "\n";
+
+	exit 1 unless $rc;
+}
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+flickr_upload - Upload photos to L<Flickr.com>.
+
+=head1 SYNOPSIS
+
+	flickr_upload 
