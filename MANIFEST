@@ -4,3 +4,4 @@ MANIFEST
 README
 t/Flickr-Upload.t
 Upload.pm
+META.yml                                 Module meta-data (added by MakeMaker)
