@@ -3,6 +3,12 @@ BEGIN { use_ok('Flickr::Upload') };
 
 use_ok('LWP::UserAgent');
 
+# grab a password. If no password, fail nicely.
+my $pw = '******';
+open( F, '<', 't/password' ) or (print STDERR "No password file\n" && exit 0);
+$pw = <F>;
+close F;
+
 # slurp in the photo
 my $photo = 't/Kernel & perl.jpg';
 my $photobuf = '';
@@ -14,8 +20,9 @@ ok( $photobuf ne '' );
 
 my $req = Flickr::Upload::make_upload_request(
 	'email' => 'cpb@cpan.org',
-	'password' => '******',
+	'password' => $pw,
 	'tags' => "test kernel perl cat dog",
+	'description' => "Flickr::Upload test for $0",
 	'is_public' => 1,
 	'is_friend' => 1,
 	'is_family' => 1,

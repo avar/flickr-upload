@@ -12,8 +12,9 @@ my $rc = upload(
 	$ua,
 	'photo' => 't/Kernel & perl.jpg',
 	'email' => 'cpb@cpan.org',
-	'password' => 'bad_pass',
+	'password' => 'bad_pass',	# we're supposed to fail gracefully
 	'tags' => "test kernel perl cat dog",
+	'description' => "Flickr::Upload test for $0",
 	'is_public' => 1,
 	'is_friend' => 1,
 	'is_family' => 1
