@@ -15,7 +15,8 @@ my $man = 0;
 GetOptions(
 	'help|?' => \$help,
 	'man' => \$man,
-	'tags=s' => \@tags,
+	'tag=s' => \@tags,
+	'uri=s' => sub { $args{$_[0]} = $_[1] },
 	'email=s' => sub { $args{$_[0]} = $_[1] },
 	'password=s' => sub { $args{$_[0]} = $_[1] },
 	'public=i' => sub { $args{is_public} = $_[1] },
@@ -27,9 +28,9 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
-die "No email" unless exists $args{'email'};
-die "No password" unless exists $args{'password'};
-die "No photos" unless @ARGV;
+pod2usage(1) unless exists $args{'email'};
+pod2usage(1) unless exists $args{'password'};
+pod2usage(1) unless @ARGV;
 
 my $version = qw($Revision$)[1];
 
@@ -38,14 +39,15 @@ $ua->agent( "flickr_upload/$version" );
 
 $args{'tags'} = join( " ", @tags ) if @tags;
 
-for( @ARGV ) {
-	print 'Uploading ', $_, '...';
+while( my $photo = shift @ARGV ) {
+	print 'Uploading ', $photo, '...';
 
-	my $rc = Flickr::Upload::upload( $ua, 'photo' => $_, %args );
+	my $rc = Flickr::Upload::upload( $ua, 'photo' => $photo, %args );
 
 	print "\n";
 
-	exit 1 unless $rc;
+	# let the caller know how many images weren't uploaded
+	exit (1+@ARGV) unless $rc;
 }
 
 exit 0;
@@ -58,4 +60,69 @@ flickr_upload - Upload photos to L<Flickr.com>.
 
 =head1 SYNOPSIS
 
-	flickr_upload 
+flickr_upload --email <email> --password <password> [--title <title>]
+	[--description description] [--public <0|1>] [--friend <0|1>]
+	[--family <0|1>] [--tag <tag>] <photos...>
+
+=head1 DESCRIPTION
+
+Uploads images to the L<Flickr.com> service.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --email <email>
+
+Email address of L<Flickr.com> user. Required.
+
+=item --password <password>
+
+Password of L<Flickr.com> user. Required.
+
+=item --title <title>
+
+Title to use on all the images. Optional.
+
+=item --description <description>
+
+Description to use on all the images. Optional.
+
+=item --public <0|1>
+
+Override the default C<is_public> access control. Optional.
+
+=item --friend <0|1>
+
+Override the default C<is_friend> access control. Optional.
+
+=item --family <0|1>
+
+Override the default C<is_friend> access control. Optional.
+
+=item --tag <tag>
+
+Images are tagged with C<tag>. Multiple C<--tag> options can be given, or
+you can just put them all into a single space-separated list.
+
+=item <photos...>
+
+List of photos to upload. Uploading stops as soon as a failure is detected
+during the upload. The script exit code will indicate the number of images
+on the command line that were not uploaded.
+
+=head1 BUGS
+
+Error handling could be better.
+
+=head1 AUTHOR
+
+Christophe Beauregard, L<cpb@cpan.org>.
+
+=head1 SEE ALSO
+
+L<flickr.com>
+
+L<Flickr::Upload>
+
+=cut
