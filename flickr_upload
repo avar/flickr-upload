@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Flickr::Upload qw(upload);
+use Flickr::Upload qw(upload check_upload);
 use LWP::UserAgent;
 use Getopt::Long;
 use Pod::Usage;
@@ -48,17 +48,44 @@ $ua->agent( "flickr_upload/$version" );
 
 $args{'tags'} = join( " ", @tags ) if @tags;
 
+# pipeline things by uploading first, waiting for photo ids second.
+$args{'async'} = 1;
+my %tickets;
+
 $| = 1;
 while( my $photo = shift @ARGV ) {
 	print 'Uploading ', $photo, '...';
 
-	my $rc = Flickr::Upload::upload( $ua, 'photo' => $photo, %args );
-
-	print "$rc\n";
+	my $rc = upload( $ua, 'photo' => $photo, %args );
 
 	# let the caller know how many images weren't uploaded
 	exit (1+@ARGV) unless defined $rc;
+
+	# check those later
+	$tickets{$rc} = $photo;
+
+	print "\n";
 }
+
+# check
+print "Waiting for upload results (ctrl-C if you don't care)...\n";
+do {
+	sleep 1;
+	my @checked = check_upload( $ua, keys %tickets );
+	for( @checked ) {
+		if( $_->{complete} == 0 ) {
+			# not done yet, don't do anythig
+		} elsif( $_->{complete} == 1 ) {
+			# uploaded, got photoid
+			print "$tickets{$_->{id}} is at " .
+				"http://www.flickr.com/tools/uploader_edit.gne?ids=$_->{photoid}\n";
+			delete $tickets{$_->{id}};
+		} else {
+			print "$tickets{$_->{id}} failed to get photoid\n";
+			delete $tickets{$_->{id}};
+		}
+	}
+} while( %tickets );
 
 exit 0;
 
