@@ -10,3 +10,5 @@ t/request.t
 t/progress.t
 t/async.t
 flickr_upload
+thkr_upload
+flickr_logo_beta.gif
