@@ -2,6 +2,7 @@ ChangeLog
 Makefile.PL
 MANIFEST
 README
-t/Flickr-Upload.t
 Upload.pm
 META.yml                                 Module meta-data (added by MakeMaker)
+t/upload.t
+t/failupload.t
