@@ -139,9 +139,9 @@ my $helpmenu = $menubar->cascade( -label => '~Help',);
 $helpmenu->command( -label => 'About',
 	-command => sub {
 		my $msg = $toplevel->messageBox( 
-			-title => 'About thkr_upload',
+			-title => 'About thickr_upload',
 			-type => 'Ok',
-			-message => 'thkr_upload ' . qw($Revision$)[1]
+			-message => 'thickr_upload ' . qw($Revision$)[1]
 				. "\npart of Flickr::Upload"
 				. "\n\ncpb\@cpan.org" );
 	}
@@ -282,7 +282,7 @@ sub upload_photo {
 	# fork/exec/pipe with Tk filevents is the recommended approach...
 
 	my $ua = LWP::UserAgent->new;
-	$ua->agent( "thkr_upload/$VERSION" );
+	$ua->agent( "thickr_upload/$VERSION" );
 	my $rc = upload( $ua, %args );
 	if( defined $rc ) {
 		$statusmsg = "Uploaded, ticket number $rc";
@@ -296,11 +296,11 @@ __END__
 
 =head1 NAME
 
-thkr_upload - Upload photos to C<flickr.com> from a GUI
+thickr_upload - Upload photos to C<flickr.com> from a GUI
 
 =head1 SYNOPSIS
 
-thkr_upload --email <email> --password <password> [--title <title>]
+thickr_upload --email <email> --password <password> [--title <title>]
 	[--description description] [--public <0|1>] [--friend <0|1>]
 	[--family <0|1>] [--tag <tag>] [<photos...>]
 
@@ -308,13 +308,13 @@ thkr_upload --email <email> --password <password> [--title <title>]
 
 GUI tool to upload images to the L<Flickr.com> service.
 
-Photos can be access in three ways:
+Photos can be added in three ways:
 
 =item listing them on the command-line
 
-=item loading them via the C<File|Open> menu
+=item loading them via the C<File|Open> menu (multiple select is supported)
 
-=item drag and drop to the preview icon
+=item drag and drop to the preview area (hopefully)
 
 The user goes through the photo list updating fields and uploading images.
 Additional photos can be added at any point in the process.
@@ -382,6 +382,9 @@ course, be overridden on the command line. For example:
 
 Plenty, no doubt.
 
+During upload, GUI blocks. Not sure how to best handle this right now. We
+do shorten the delay as much as possible by using async uploading.
+
 =head1 AUTHOR
 
 Christophe Beauregard, L<cpb@cpan.org>.
@@ -391,5 +394,7 @@ Christophe Beauregard, L<cpb@cpan.org>.
 L<flickr.com>
 
 L<Flickr::Upload>
+
+L<flickr_upload>
 
 =cut

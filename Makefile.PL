@@ -14,7 +14,7 @@ WriteMakefile(
 		'HTTP::Request::Common' => 1,
 		'XML::Parser::Lite::Tree' => 0.03,
 	},
-	'EXE_FILES' => [ 'flickr_upload' ],
+	'EXE_FILES' => [ 'flickr_upload', 'thickr_upload' ],
 	'clean' => { FILES => 'ChangeLog' },
 	'depend' => { 'distdir' => 'ChangeLog' },
 );
