@@ -1,6 +1,5 @@
 package Flickr::Upload;
 
-use 5.008003;
 use strict;
 use warnings;
 
