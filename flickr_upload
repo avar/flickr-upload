@@ -12,6 +12,15 @@ my @tags = ();
 my $help = 0;
 my $man = 0;
 
+if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
+	while( <CONFIG> ) {
+		chomp;
+		s/#.*$//;	# strip comments
+		$args{$1} = $2 if m/^\s*([a-z]+)=(.+)\s*$/io;
+	}
+	close CONFIG;
+}
+
 GetOptions(
 	'help|?' => \$help,
 	'man' => \$man,
@@ -39,15 +48,16 @@ $ua->agent( "flickr_upload/$version" );
 
 $args{'tags'} = join( " ", @tags ) if @tags;
 
+$| = 1;
 while( my $photo = shift @ARGV ) {
 	print 'Uploading ', $photo, '...';
 
 	my $rc = Flickr::Upload::upload( $ua, 'photo' => $photo, %args );
 
-	print "\n";
+	print "$rc\n";
 
 	# let the caller know how many images weren't uploaded
-	exit (1+@ARGV) unless $rc;
+	exit (1+@ARGV) unless defined $rc;
 }
 
 exit 0;
@@ -109,7 +119,22 @@ you can just put them all into a single space-separated list.
 
 List of photos to upload. Uploading stops as soon as a failure is detected
 during the upload. The script exit code will indicate the number of images
-on the command line that were not uploaded.
+on the command line that were not uploaded. For each uploaded image, the
+allocated photo identifier (currently just a number) is printed.
+
+=head1 CONFIGURATION
+
+To avoid having to type email and passwords and such (or have them show up
+in the process table listings), default values will
+be read from C<$HOME/.flickrrc> if it exists. Any field defined there can, of
+course, be overridden on the command line. For example:
+
+	# my config at $HOME/.flickrrc
+	email=me@example.com
+	password=secret
+	is_public=0
+	is_friend=1
+	is_family=1
 
 =head1 BUGS
 
