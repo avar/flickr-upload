@@ -7,6 +7,7 @@ use_ok('LWP::UserAgent');
 my $pw = '******';
 open( F, '<', 't/password' ) or (print STDERR "No password file\n" && exit 0);
 $pw = <F>;
+chomp $pw;
 close F;
 
 my $ua = LWP::UserAgent->new;
@@ -21,9 +22,9 @@ my $rc = upload(
 	'password' => $pw,
 	'tags' => "test kernel perl cat dog",
 	'description' => "Flickr::Upload test for $0",
-	'is_public' => 1,
-	'is_friend' => 1,
-	'is_family' => 1,
+	'is_public' => 0,
+	'is_friend' => 0,
+	'is_family' => 0,
 );
 
 ok( defined $rc );
