@@ -29,6 +29,13 @@ a good amount of examples included as tests in t/ of the source
 distribution. And you can always ask me how to do something if it's not
 obvious. I might even know.
 
+A perl Tk-based GUI uploader, thickr_upload, is included. To run it,
+you may need to install the following additional packages:
+
+	Tk
+	Tk::JPEG
+	Tk::PNG
+
 COPYRIGHT AND LICENCE
 =====================
 
