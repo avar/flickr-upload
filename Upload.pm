@@ -17,17 +17,15 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
-	
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	
+	flickr_upload
 );
 
-our $VERSION = '0.01';
-
+$VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 # Preloaded methods go here.
 
@@ -39,41 +37,38 @@ __END__
 
 =head1 NAME
 
-Flickr::Upload - Perl extension for blah blah blah
+Flickr::Upload - Upload images to L<flickr.com>
 
 =head1 SYNOPSIS
 
-  use Flickr::Upload;
-  blah blah blah
+	use LWP::UserAgent;
+	use Flickr::Upload;
+
+	my $ua = LWP::UserAgent->new;
+	$ua->agent( "$0/1.0" );
+
+	flickr_upload(
+		'filename' => '/tmp/image.jpg',
+		'email' => 'self@example.com',
+		'password' => 'pr1vat3',
+		'tags' => ['me', 'myself', 'eye'],
+		'is_public' => 1,
+		'is_friend' => 1,
+		'is_family' => 1
+	) or die "Failed to upload /tmp/image.jpg";
 
 =head1 DESCRIPTION
 
-Stub documentation for Flickr::Upload, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
+Upload an image to L<flickr.com>.
 
 =head2 EXPORT
-
-None by default.
-
 
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
-
 =head1 AUTHOR
 
-Christophe Beauregard, E<lt>cpb@localdomainE<gt>
+Christophe Beauregard, E<lt>cpb@cpan.org<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -82,6 +77,5 @@ Copyright (C) 2004 by Christophe Beauregard
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
