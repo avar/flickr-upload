@@ -4,8 +4,8 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
 	NAME              => 'Flickr::Upload',
 	VERSION_FROM      => 'Upload.pm',
-	ABSTRACT_FROM  => 'Upload.pm',
-	AUTHOR         => 'Christophe Beauregard <cpb@cpan.org>',
+	ABSTRACT          => 'Module for uploading images to flickr.com',
+	AUTHOR            => 'Christophe Beauregard <cpb@cpan.org>',
 	PREREQ_PM         => {
 		'LWP::UserAgent' => 1,
 		'HTTP::Request::Common' => 1,
