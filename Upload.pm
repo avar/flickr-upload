@@ -220,10 +220,7 @@ __END__
 
 =head1 BUGS
 
-Asynchronous uploading isn't supported. Async, quite frankly, doesn't
-make much sense in this API. Anyone who can write a perl script to get
-an image upload going but is unable to keep track of whether or not it
-finished without polling a web server has got major problems.
+Asynchronous uploading isn't supported.
 
 =head1 SEE ALSO
 
