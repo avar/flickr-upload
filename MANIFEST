@@ -6,4 +6,5 @@ Upload.pm
 META.yml                                 Module meta-data (added by MakeMaker)
 t/upload.t
 t/failupload.t
+t/request.t
 flickr_upload
