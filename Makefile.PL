@@ -2,7 +2,7 @@ use 5.008003;
 use ExtUtils::MakeMaker;
 
 sub MY::postamble {
-	return "ChangeLog:\n\tcvs2cl.pl -r --show-dead -S --no-wrap --utc\n\n";
+	return "ChangeLog:\n\tcvs2cl.pl -r --show-dead -S --utc\n\n";
 }
 
 WriteMakefile(
