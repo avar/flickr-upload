@@ -10,7 +10,7 @@ use File::Basename;
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 
 use Tk;
-use Tk::JPEG;
+use Tk::JPEG::Lite;
 use Tk::PNG;
 use Tk::FileSelect;
 use Tk::DropSite;
@@ -433,8 +433,7 @@ course, be overridden on the command line. For example:
 
 Plenty, no doubt.
 
-During upload, GUI blocks. Not sure how to best handle this right now. We
-do shorten the delay as much as possible by using async uploading.
+Uploading doesn't give a whole lot of feedback.
 
 =head1 AUTHOR
 

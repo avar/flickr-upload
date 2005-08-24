@@ -8,10 +8,10 @@ use AutoLoader qw(AUTOLOAD);
 
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use Flickr::API;
 use XML::Parser::Lite::Tree;
-use Data::Dumper;
 
-our @ISA = qw(Exporter);
+our @ISA = qw(Exporter Flickr::API);
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -20,14 +20,11 @@ our @ISA = qw(Exporter);
 # This allows declaration	use Flickr::Upload ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = (
-	'all' => [ qw(upload check_upload make_upload_request upload_request) ],
-);
+our %EXPORT_TAGS = ();
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+our @EXPORT_OK = ();
 
-our @EXPORT = qw(
-);
+our @EXPORT = qw();
 
 our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
@@ -35,15 +32,16 @@ our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r,
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
-sub uploader_tag($$) {
+sub response_tag {
 	my $t = shift;
+	my $node = shift;
 	my $tag = shift;
 
 	return undef unless defined $t and exists $t->{'children'};
 
 	for my $n ( @{$t->{'children'}} ) {
-		next unless $n->{'name'} eq "uploader";
-		next unless exists $n->{'children'};
+		next unless defined $n and exists $n->{'name'} and exists $n->{'children'};
+		next unless $n->{'name'} eq $node;
 
 		for my $m (@{$n->{'children'}} ) {
 			next unless exists $m->{'name'}
@@ -62,15 +60,12 @@ Flickr::Upload - Upload images to C<flickr.com>
 
 =head1 SYNOPSIS
 
-	use LWP::UserAgent;
-	use Flickr::Upload qw(upload);
+	use Flickr::Upload;
 
-	my $ua = LWP::UserAgent->new;
-	upload(
-		$ua,
+	my $ua = Flickr::Upload->new( 'key' => '90909354', 'secret' => '37465825' );
+	$ua->upload(
 		'photo' => '/tmp/image.jpg',
-		'email' => 'self@example.com',
-		'password' => 'pr1vat3',
+		'auth_token' => $auth_token,
 		'tags' => 'me myself eye',
 		'is_public' => 1,
 		'is_friend' => 1,
@@ -85,11 +80,9 @@ Upload an image to L<flickr.com>.
 
 =head2 upload
 
-	my $photoid = upload(
-		$ua,
+	my $photoid = $ua->upload(
 		'photo' => '/tmp/image.jpg',
-		'email' => 'self@example.com',
-		'password' => 'pr1vat3',
+		'auth_token' => $auth_token,
 		'tags' => 'me myself eye',
 		'is_public' => 1,
 		'is_friend' => 1,
@@ -97,11 +90,13 @@ Upload an image to L<flickr.com>.
 		'async' => 0,
 	);
 
-Taking a L<LWP::UserAgent> as an argument (C<$ua>), this is basically a
+Taking a L<Flickr::Upload> instance as an argument (C<$ua>), this is basically a
 direct interface to the Flickr Photo Upload API. Required parameters are
-C<photo>, C<email>, and C<password>. C<uri> may be provided if you don't
+C<photo> and C<auth_token>. C<uri> may be provided if you don't
 want to use the default, L<http://www.flickr.com/tools/uploader_go.gne>
-(i.e. you have a custom server running somewhere that supports the API).
+(i.e. you have a custom server running somewhere that supports the API). Note that
+the C<auth_token> must have been issued against the API key and secret used to
+instantiate the uploader.
 
 Returns the resulting identifier of the uploaded photo on success,
 C<undef> on failure. According to the API documentation, after an upload the
@@ -117,26 +112,25 @@ periodically poll for a photo id using the C<check_upload> call.
 #'
 
 sub upload($%) {
-	my $ua = shift;
-	die "expecting a LWP::UserAgent" unless $ua->isa('LWP::UserAgent');
+	my $self = shift;
+	die '$self is not a Flickr::Upload' unless $self->isa('Flickr::Upload');
 	my %args = @_;
 
 	# these are the only things _required_ by the uploader.
-	return undef unless $args{'photo'} and -f $args{'photo'};
-	return undef unless $args{'email'};
-	return undef unless $args{'password'};
+	die "Can't read photo '$args{'photo'}'" unless $args{'photo'} and -f $args{'photo'};
+	die "Missing 'auth_token'" unless defined $args{'auth_token'};
 
 	# create a request object and execute it
-	my $req = make_upload_request( %args );
+	my $req = $self->make_upload_request( %args );
 	return undef unless defined $req;
 
-	return upload_request( $ua, $req );
+	return $self->upload_request( $req );
 }
 
 =head2 check_upload
 
 	my %status2txt = (0 => 'not complete', 1 => 'completed', 2 => 'failed');
-	my @rc = check_upload( $ua, @ticketids );
+	my @rc = $ua->check_upload( @ticketids );
 	for( @rc ) {
 		print "Ticket $_->{id} has $status2txt{$_->{complete}}\n";
 		print "\tPhoto id is $_->{photoid}\n" if exists $_->{photoid};
@@ -144,7 +138,8 @@ sub upload($%) {
 
 This function will check the status of one or more asynchronous uploads. A
 list of ticket identifiers are provided (C<@ticketids>) and each is
-checked.
+checked. This is basically just a wrapper around the Flickr::API
+flickr.photos.upload.checkTickets method.
 
 On success, a list of hash references is returned. Each
 hash contains a C<id> (the ticket id), C<complete> and, if
@@ -159,26 +154,23 @@ This function polls a web server, so avoid calling it too frequently.
 =cut
 #'
 
-sub check_upload($@) {
-	my $ua = shift;
-	die "expecting a LWP::UserAgent" unless $ua->isa('LWP::UserAgent');
+sub check_upload {
+	my $self = shift;
+	die '$self is not a Flickr::API' unless $self->isa('Flickr::API');
 
 	return () unless @_;	# no tickets
 
-	my $uri = 'http://www.flickr.com/tools/uploader_check.gne?tickets='
-		. ((@_ == 1) ? $_[0] : join(',', @_));
+	my $res = $self->execute_method( 'flickr.photos.upload.checkTickets',
+		{ 'tickets' => ((@_ == 1) ? $_[0] : join(',', @_)) } );
+	return () unless defined $res and $res->{success};
 
-	my $res = $ua->request( GET $uri );
-	return () unless defined $res;
-
-	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
-	return () unless defined $tree;
+	# FIXME: better error feedback
 
 	my @rc;
-	return undef unless defined $tree and exists $tree->{'children'};
-	for my $n ( @{$tree->{'children'}} ) {
+	return undef unless defined $res->{tree} and exists $res->{tree}->{'children'};
+	for my $n ( @{$res->{tree}->{'children'}} ) {
+		next unless defined $n and exists $n->{'name'} and $n->{'children'};
 		next unless $n->{'name'} eq "uploader";
-		next unless exists $n->{'children'};
 
 		for my $m (@{$n->{'children'}} ) {
 			next unless exists $m->{'name'}
@@ -195,9 +187,8 @@ sub check_upload($@) {
 
 =head2 make_upload_request
 
-	my $req = make_upload_request(
-		'email' => 'self@example.com',
-		'password' => 'pr1vat3',
+	my $req = $uploader->make_upload_request(
+		'auth_token' => '82374523',
 		'tags' => 'me myself eye',
 		'is_public' => 1,
 		'is_friend' => 1,
@@ -207,7 +198,8 @@ sub check_upload($@) {
 	my $resp = $ua->request( $req );
 
 Creates an L<HTTP::Request> object loaded with all the flick upload
-parameters.
+parameters. This will also sign the request, which means you won't be able to
+mess any further with the upload request parameters.
 
 Takes all the same parameters as L<upload>, except that the photo argument
 isn't required. This in intended so that the caller can include it by
@@ -221,23 +213,35 @@ do the upload or just call the L<upload_request> function.
 =cut
 #'
 
-sub make_upload_request(%) {
+sub make_upload_request {
+	my $self = shift;
+	die '$self is not a Flickr::Upload' unless $self->isa('Flickr::Upload');
 	my %args = @_;
 
-	# these are the only things _required_ by the uploader.
-	return undef unless $args{'email'};
-	return undef unless $args{'password'};
+	# _required_ by the uploader.
+	die "Missing 'auth_token' argument" unless $args{'auth_token'};
 
-	my $uri = $args{'uri'} || 'http://www.flickr.com/tools/uploader_go.gne';
+	my $uri = $args{'uri'} || 'http://www.flickr.com/services/upload/';
 
 	# passed in separately, so remove from the hash
 	delete $args{uri};
 
-	if( exists $args{photo} and ref $args{photo} ne "ARRAY" ) {
-		# unlikely that the caller would set up the photo as an array,
-		# but...
-		$args{photo} = [ $args{photo} ];
-	}
+
+	# Flickr::API includes this with normal requests, but we're building a custom
+	# request.
+	$args{'api_key'} = $self->{'api_key'};
+
+	# photo is _not_ included in the sig
+	my $photo = $args{photo};
+	delete $args{photo};
+
+	# HACK: sign_args() is an internal Flickr::API method
+	$args{'api_sig'} = $self->sign_args(\%args);
+
+	# unlikely that the caller would set up the photo as an array,
+	# but...
+	$photo = [ $photo ] if defined $photo and ref $photo ne "ARRAY";
+	$args{photo} = $photo;
 
 	return POST $uri, 'Content_Type' => 'form-data', 'Content' => \%args;
 }
@@ -249,7 +253,8 @@ sub make_upload_request(%) {
 Taking L<LWP::UserAgent> and L<HTTP::Request> objects as arguments, this
 executes the request and processes the result as a flickr upload. It's
 assumed that the request looks a lot like something created with
-L<make_upload_request>.
+L<make_upload_request>. Note that the request must be signed according to the Flickr
+API authentication rules.
 
 Returns the resulting identifier of the uploaded photo (or ticket for
 asynchronous uploads) on success, C<undef> on failure. According to the
@@ -259,21 +264,22 @@ page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 =cut
 #'
 
+use Data::Dumper;
 sub upload_request($$) {
-	my $ua = shift;
-	die "expecting a LWP::UserAgent" unless $ua->isa('LWP::UserAgent');
+	my $self = shift;
+	die "$self is not a LWP::UserAgent" unless $self->isa('LWP::UserAgent');
 	my $req = shift;
 	die "expecting a HTTP::Request" unless $req->isa('HTTP::Request');
 
-	my $res = $ua->request( $req );
+	my $res = $self->request( $req );
 
 	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
+	return () unless defined $tree;
 
-	my $photoid = uploader_tag($tree, 'photoid');
-	my $ticketid = uploader_tag($tree, 'ticketid');
+	my $photoid = response_tag($tree, 'rsp', 'photoid');
+	my $ticketid = response_tag($tree, 'rsp', 'ticketid');
 	unless( defined $photoid or defined $ticketid ) {
-		my $err = uploader_tag($tree, 'verbose');
-		print STDERR "upload failed: ", ($err || $res->content()), "\n";
+		print STDERR "upload failed:\n", Dumper($tree), "\n";
 		return undef;
 	}
 

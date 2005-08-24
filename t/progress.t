@@ -2,21 +2,25 @@ use Test::More qw(no_plan);
 BEGIN { use_ok('Flickr::Upload') };
 
 use_ok('LWP::UserAgent');
-
 $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
 
-# grab a password. If no password, fail nicely.
+my $api_key = '8dcf37880da64acfe8e30bb1091376b7';
+my $not_so_secret = '2f3695d0562cdac7';
+
+# grab auth token. If none, fail nicely.
 my $pw = '******';
 open( F, '<', 't/password' ) or (print STDERR "No password file\n" && exit 0);
 $pw = <F>;
 chomp $pw;
 close F;
 
-my $req = Flickr::Upload::make_upload_request(
+my $ua = Flickr::Upload->new({'key'=>$api_key, 'secret'=>$not_so_secret});
+ok(defined $ua);
+
+my $req = $ua->make_upload_request(
 	'description' => "Flickr Upload test for $0",
-	'email' => 'cpb@cpan.org',
+	'auth_token' => $pw,
 	'photo' => 't/Kernel & perl.jpg',
-	'password' => $pw,
 	'tags' => "test kernel perl cat dog",
 	'is_public' => 0,
 	'is_friend' => 0,
@@ -36,12 +40,9 @@ $req->content(
 	}
 );
 
-my $ua = LWP::UserAgent->new;
-ok(defined $ua);
-
 $ua->agent( "$0/1.0" );
 
-my $photoid = Flickr::Upload::upload_request( $ua, $req );
+my $photoid = $ua->upload_request( $req );
 ok( defined $photoid );
 
 print "\n";

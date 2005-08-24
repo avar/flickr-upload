@@ -1,28 +1,25 @@
 use Test::More qw(no_plan);
-BEGIN { use_ok('Flickr::Upload', 'upload', 'check_upload' ) };
+BEGIN { use_ok('Flickr::Upload') };
 
-use_ok('LWP::UserAgent');
+my $api_key = '8dcf37880da64acfe8e30bb1091376b7';
+my $not_so_secret = '2f3695d0562cdac7';
 
-use Data::Dumper;
-
-# grab a password. If no password, fail nicely.
+# grab auth token. If none, fail nicely.
 my $pw = '******';
 open( F, '<', 't/password' ) or (print STDERR "No password file\n" && exit 0);
 $pw = <F>;
 chomp $pw;
 close F;
 
-my $ua = LWP::UserAgent->new;
+my $ua = Flickr::Upload->new({'key'=>$api_key, 'secret'=>$not_so_secret});
 ok(defined $ua);
 
 $ua->agent( "$0/1.0" );
 
-my $rc = upload(
-	$ua,
+my $rc = $ua->upload(
 	'async' => 1,
 	'photo' => 't/Kernel & perl.jpg',
-	'email' => 'cpb@cpan.org',
-	'password' => $pw,
+	'auth_token' => $pw,
 	'tags' => "test kernel perl cat dog",
 	'description' => "Flickr Upload test for $0",
 	'is_public' => 0,
@@ -36,7 +33,7 @@ print STDERR "Got ticket id '$rc'\n";
 
 do {
 	sleep 1;
-	my @checked = check_upload( $ua, $rc );
+	my @checked = $ua->check_upload( $rc );
 
 	for( @checked ) {
 		if( $_->{id} == $rc and $_->{complete} ) {

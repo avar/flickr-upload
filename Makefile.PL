@@ -13,6 +13,7 @@ WriteMakefile(
 		'LWP::UserAgent' => 1,
 		'HTTP::Request::Common' => 1,
 		'XML::Parser::Lite::Tree' => 0.03,
+		'Flickr::API' => 0.07,
 	},
 	'EXE_FILES' => [ 'flickr_upload', 'thickr_upload' ],
 	'clean' => { FILES => 'ChangeLog' },
