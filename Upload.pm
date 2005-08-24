@@ -240,8 +240,10 @@ sub make_upload_request {
 
 	# unlikely that the caller would set up the photo as an array,
 	# but...
-	$photo = [ $photo ] if defined $photo and ref $photo ne "ARRAY";
-	$args{photo} = $photo;
+	if( defined $photo ) {
+		$photo = [ $photo ] if ref $photo ne "ARRAY";
+		$args{photo} = $photo;
+	}
 
 	return POST $uri, 'Content_Type' => 'form-data', 'Content' => \%args;
 }
@@ -264,7 +266,6 @@ page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 =cut
 #'
 
-use Data::Dumper;
 sub upload_request($$) {
 	my $self = shift;
 	die "$self is not a LWP::UserAgent" unless $self->isa('LWP::UserAgent');
@@ -279,7 +280,7 @@ sub upload_request($$) {
 	my $photoid = response_tag($tree, 'rsp', 'photoid');
 	my $ticketid = response_tag($tree, 'rsp', 'ticketid');
 	unless( defined $photoid or defined $ticketid ) {
-		print STDERR "upload failed:\n", Dumper($tree), "\n";
+		print STDERR "upload failed:\n", $res->content(), "\n";
 		return undef;
 	}
 
