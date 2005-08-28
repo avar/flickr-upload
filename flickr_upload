@@ -20,7 +20,15 @@ if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
 	while( <CONFIG> ) {
 		chomp;
 		s/#.*$//;	# strip comments
-		$args{$1} = $2 if m/^\s*([a-z_]+)=(.+)\s*$/io;
+
+		next unless m/^\s*([a-z_]+)=(.+)\s*$/io;
+		if( $1 eq "key" ) {
+			$api_key = $2;
+		} elsif( $1 eq "secret" ) {
+			$not_so_secret = $2;
+		} else {
+			$args{$1} = $2;
+		}
 	}
 	close CONFIG;
 }
@@ -232,7 +240,9 @@ you can just put them all into a single space-separated list.
 =item --secret <secret>
 
 Your own API key and secret. This is useful if you want to use L<flickr_upload> in
-auth mode as a token generator. You need both C<key> and C<secret>.
+auth mode as a token generator. You need both C<key> and C<secret>. Both C<key> and
+C<secret> can be placed in C<~/.flickrrc>, allowing you to mix L<flickr_upload> with
+your own scripts using a single API key and authentication token.
 
 =item <photos...>
 
