@@ -6,6 +6,7 @@ use Flickr::Upload;
 use Getopt::Long;
 use Pod::Usage;
 
+# get your own key and secret from http://www.flickr.com/services/api/key.gne
 my $api_key = '8dcf37880da64acfe8e30bb1091376b7';
 my $not_so_secret = '2f3695d0562cdac7';
 
@@ -191,7 +192,11 @@ Uploads images to the L<Flickr.com> service.
 
 =item --auth
 
-When defined 
+The C<--auth> flag will cause L<flickr_upload> to generate an authentication token
+against it's API key and secret (or, if you want, your own specific key and secret).
+This process requires the caller to have a browser handy so they can cut and paste a
+url. The resulting token should be kept somewhere like C<~/.flickrrc> since it's
+necessary for actually uploading images.
 
 =item --auth_token <auth_token>
 
@@ -233,8 +238,11 @@ auth mode as a token generator. You need both C<key> and C<secret>.
 
 List of photos to upload. Uploading stops as soon as a failure is detected
 during the upload. The script exit code will indicate the number of images
-on the command line that were not uploaded. For each uploaded image, the
-allocated photo identifier (currently just a number) is printed.
+on the command line that were not uploaded. For each uploaded image, a Flickr URL
+will be generated. L<flickr_upload> uses asynchronous uploading so while the image is
+usually transferred fairly quickly, it might take a while before it's actually
+available to users. L<flickr_upload> will wait around for that to complete, but be
+aware that delays of upwards of thirty minutes have (rarely) be know to occur.
 
 =head1 CONFIGURATION
 

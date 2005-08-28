@@ -76,7 +76,19 @@ Flickr::Upload - Upload images to C<flickr.com>
 
 Upload an image to L<flickr.com>.
 
-=head1 FUNCTIONS
+=head1 METHODS
+
+=head2 new
+
+	my $ua = Flickr::Upload->new( 'key' => '90909354', 'secret' => '37465825' );
+
+Instatiates a L<Flickr::Upload> instance. The C<key> argument is your API key and the
+C<secret> is the API secret associated with it. To get an API key and secret, go to
+L<http://www.flickr.com/services/api/key.gne>.
+
+The resulting L<Flickr::Upload> instance is a subclass of L<Flickr::API>
+and thus can be used for any other Flickr API calls. Note also that L<Flickr::Upload>
+is also a subclass of L<LWP::UserAgent>.
 
 =head2 upload
 
@@ -90,13 +102,11 @@ Upload an image to L<flickr.com>.
 		'async' => 0,
 	);
 
-Taking a L<Flickr::Upload> instance as an argument (C<$ua>), this is basically a
-direct interface to the Flickr Photo Upload API. Required parameters are
-C<photo> and C<auth_token>. C<uri> may be provided if you don't
-want to use the default, L<http://www.flickr.com/tools/uploader_go.gne>
-(i.e. you have a custom server running somewhere that supports the API). Note that
-the C<auth_token> must have been issued against the API key and secret used to
-instantiate the uploader.
+Taking a L<Flickr::Upload> instance C<$ua> as an argument, this is
+basically a direct interface to the Flickr Photo Upload API. Required
+parameters are C<photo> and C<auth_token>.  Note that the C<auth_token>
+must have been issued against the API key and secret used to instantiate
+the uploader.
 
 Returns the resulting identifier of the uploaded photo on success,
 C<undef> on failure. According to the API documentation, after an upload the
@@ -106,7 +116,7 @@ L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 If the C<async> option is non-zero, the photo will be uploaded
 asynchronously and a successful upload returns a ticket number. See
 L<http://flickr.com/services/api/upload.async.html>. The caller can then
-periodically poll for a photo id using the C<check_upload> call.
+periodically poll for a photo id using the C<check_upload> method.
 
 =cut
 #'
@@ -138,8 +148,8 @@ sub upload($%) {
 
 This function will check the status of one or more asynchronous uploads. A
 list of ticket identifiers are provided (C<@ticketids>) and each is
-checked. This is basically just a wrapper around the Flickr::API
-flickr.photos.upload.checkTickets method.
+checked. This is basically just a wrapper around the Flickr API
+C<flickr.photos.upload.checkTickets> method.
 
 On success, a list of hash references is returned. Each
 hash contains a C<id> (the ticket id), C<complete> and, if
@@ -226,9 +236,8 @@ sub make_upload_request {
 	# passed in separately, so remove from the hash
 	delete $args{uri};
 
-
 	# Flickr::API includes this with normal requests, but we're building a custom
-	# request.
+	# message.
 	$args{'api_key'} = $self->{'api_key'};
 
 	# photo is _not_ included in the sig
@@ -245,18 +254,20 @@ sub make_upload_request {
 		$args{photo} = $photo;
 	}
 
-	return POST $uri, 'Content_Type' => 'form-data', 'Content' => \%args;
+	my $req = POST $uri, 'Content_Type' => 'form-data', 'Content' => \%args;
+
+	return $req;
 }
 
 =head2 upload_request
 
 	my $photoid = upload_request( $ua, $request );
 
-Taking L<LWP::UserAgent> and L<HTTP::Request> objects as arguments, this
-executes the request and processes the result as a flickr upload. It's
-assumed that the request looks a lot like something created with
-L<make_upload_request>. Note that the request must be signed according to the Flickr
-API authentication rules.
+Taking (at least) L<LWP::UserAgent> and L<HTTP::Request> objects as
+arguments, this executes the request and processes the result as a
+flickr upload. It's assumed that the request looks a lot like something
+created with L<make_upload_request>. Note that the request must be signed
+according to the Flickr API authentication rules.
 
 Returns the resulting identifier of the uploaded photo (or ticket for
 asynchronous uploads) on success, C<undef> on failure. According to the
@@ -292,7 +303,9 @@ __END__
 
 =head1 SEE ALSO
 
-L<http://flickr.com/services/api/>.
+L<http://flickr.com/services/api/>
+
+L<Flickr::API>
 
 =head1 AUTHOR
 
