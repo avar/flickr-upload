@@ -313,7 +313,7 @@ Christophe Beauregard, L<cpb@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This module is not an official Flickr.com (or Ludicorp) service.
+This module is not an official Flickr.com (or Ludicorp, or Yahoo) service.
 
 Copyright (C) 2004,2005 by Christophe Beauregard
 
