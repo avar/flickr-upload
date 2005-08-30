@@ -9,4 +9,5 @@ t/failupload.t
 t/request.t
 t/progress.t
 t/async.t
+t/testimage.jpg
 flickr_upload

@@ -9,7 +9,7 @@ my $not_so_secret = '2f3695d0562cdac7';
 
 # grab auth token. If none, fail nicely.
 my $pw = '******';
-open( F, '<', 't/password' ) or (print STDERR "No password file\n" && exit 0);
+open( F, '<', 't/password' ) || (print STDERR "No password file\n" && exit 0);
 $pw = <F>;
 chomp $pw;
 close F;
@@ -20,7 +20,7 @@ ok(defined $ua);
 my $req = $ua->make_upload_request(
 	'description' => "Flickr Upload test for $0",
 	'auth_token' => $pw,
-	'photo' => 't/Kernel & perl.jpg',
+	'photo' => 't/testimage.jpg',
 	'tags' => "test kernel perl cat dog",
 	'is_public' => 0,
 	'is_friend' => 0,

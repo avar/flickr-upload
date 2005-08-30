@@ -10,7 +10,7 @@ ok(defined $ua);
 $ua->agent( "$0/1.0" );
 
 my $rc = $ua->upload(
-	'photo' => 't/Kernel & perl.jpg',
+	'photo' => 't/testimage.jpg',
 	'auth_token' => 'bad_pass',	# we're supposed to fail gracefully
 	'tags' => "test kernel perl cat dog",
 	'description' => "Flickr::Upload test for $0",
