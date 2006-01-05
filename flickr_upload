@@ -228,7 +228,7 @@ Override the default C<is_friend> access control. Optional.
 
 =item --family <0|1>
 
-Override the default C<is_friend> access control. Optional.
+Override the default C<is_family> access control. Optional.
 
 =item --tag <tag>
 
