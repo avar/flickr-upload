@@ -233,7 +233,11 @@ Override the default C<is_family> access control. Optional.
 =item --tag <tag>
 
 Images are tagged with C<tag>. Multiple C<--tag> options can be given, or
-you can just put them all into a single space-separated list.
+you can just put them all into a single space-separated list. If you want
+to define a tag with spaces, the quotes have to be part of the tag itself.
+The following works in L<bash>:
+
+  flickr_upload --tag='"tag one"' --tag='"tag two"' image.jpg
 
 =item --key <api_key>
 
