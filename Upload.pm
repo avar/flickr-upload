@@ -231,7 +231,7 @@ sub make_upload_request {
 	# _required_ by the uploader.
 	die "Missing 'auth_token' argument" unless $args{'auth_token'};
 
-	my $uri = $args{'uri'} || 'http://www.flickr.com/services/upload/';
+	my $uri = $args{'uri'} || 'http://api.flickr.com/services/upload/';
 
 	# passed in separately, so remove from the hash
 	delete $args{uri};
