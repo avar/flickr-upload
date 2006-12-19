@@ -62,7 +62,11 @@ Flickr::Upload - Upload images to C<flickr.com>
 
 	use Flickr::Upload;
 
-	my $ua = Flickr::Upload->new( 'key' => '90909354', 'secret' => '37465825' );
+	my $ua = Flickr::Upload->new(
+		{
+			'key' => '90909354',
+			'secret' => '37465825'
+		});
 	$ua->upload(
 		'photo' => '/tmp/image.jpg',
 		'auth_token' => $auth_token,
@@ -80,15 +84,19 @@ Upload an image to L<flickr.com>.
 
 =head2 new
 
-	my $ua = Flickr::Upload->new( 'key' => '90909354', 'secret' => '37465825' );
+	my $ua = Flickr::Upload->new(
+		{
+			'key' => '90909354',
+			'secret' => '37465825'
+		});
 
-Instatiates a L<Flickr::Upload> instance. The C<key> argument is your API key and the
-C<secret> is the API secret associated with it. To get an API key and secret, go to
-L<http://www.flickr.com/services/api/key.gne>.
+Instatiates a L<Flickr::Upload> instance. The C<key> argument is your
+API key and the C<secret> is the API secret associated with it. To get an
+API key and secret, go to L<http://www.flickr.com/services/api/key.gne>.
 
 The resulting L<Flickr::Upload> instance is a subclass of L<Flickr::API>
-and thus can be used for any other Flickr API calls. Note also that L<Flickr::Upload>
-is also a subclass of L<LWP::UserAgent>.
+and thus can be used for any other Flickr API calls. Note also that
+L<Flickr::Upload> is also a subclass of L<LWP::UserAgent>.
 
 =head2 upload
 
