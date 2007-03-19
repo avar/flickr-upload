@@ -14,6 +14,8 @@ WriteMakefile(
 		'HTTP::Request::Common' => 1,
 		'XML::Parser::Lite::Tree' => 0.03,
 		'Flickr::API' => 0.07,
+		'Pos::Usage' => 1,
+		'Getopt::Long' => 1,
 	},
 	'EXE_FILES' => [ 'flickr_upload' ],
 	'clean' => { FILES => 'ChangeLog' },
