@@ -83,7 +83,8 @@ if( $auth ) {
 	die "Failed to get authentication token!" unless defined $auth_token;
 	
 	# 6. Tell the user what they won.
-	print "You authentication token for this application is\n\t\t", $auth_token, "\n";
+	print "Your authentication token for this application is\n\t\t",
+		$auth_token, "\n";
 	
 	exit 0;
 }
@@ -200,11 +201,12 @@ Uploads images to the L<Flickr.com> service.
 
 =item --auth
 
-The C<--auth> flag will cause L<flickr_upload> to generate an authentication token
-against it's API key and secret (or, if you want, your own specific key and secret).
-This process requires the caller to have a browser handy so they can cut and paste a
-url. The resulting token should be kept somewhere like C<~/.flickrrc> since it's
-necessary for actually uploading images.
+The C<--auth> flag will cause L<flickr_upload> to generate an
+authentication token against it's API key and secret (or, if you want,
+your own specific key and secret).  This process requires the caller
+to have a browser handy so they can cut and paste a url. The resulting
+token should be kept somewhere like C<~/.flickrrc> since it's necessary
+for actually uploading images.
 
 =item --auth_token <auth_token>
 
@@ -243,20 +245,44 @@ The following works in L<bash>:
 
 =item --secret <secret>
 
-Your own API key and secret. This is useful if you want to use L<flickr_upload> in
-auth mode as a token generator. You need both C<key> and C<secret>. Both C<key> and
-C<secret> can be placed in C<~/.flickrrc>, allowing you to mix L<flickr_upload> with
-your own scripts using a single API key and authentication token.
+Your own API key and secret. This is useful if you want to use
+L<flickr_upload> in auth mode as a token generator. You need both C<key>
+and C<secret>. Both C<key> and C<secret> can be placed in C<~/.flickrrc>,
+allowing you to mix L<flickr_upload> with your own scripts using a single
+API key and authentication token.
 
 =item <photos...>
 
 List of photos to upload. Uploading stops as soon as a failure is detected
 during the upload. The script exit code will indicate the number of images
-on the command line that were not uploaded. For each uploaded image, a Flickr URL
-will be generated. L<flickr_upload> uses asynchronous uploading so while the image is
-usually transferred fairly quickly, it might take a while before it's actually
-available to users. L<flickr_upload> will wait around for that to complete, but be
-aware that delays of upwards of thirty minutes have (rarely) be know to occur.
+on the command line that were not uploaded. For each uploaded image, a
+Flickr URL will be generated. L<flickr_upload> uses asynchronous uploading
+so while the image is usually transferred fairly quickly, it might take
+a while before it's actually available to users. L<flickr_upload> will
+wait around for that to complete, but be aware that delays of upwards
+of thirty minutes have (rarely) be know to occur.
+
+=head1 EXAMPLES
+
+First, you need to get an authentication token:
+
+   cpb@earth:~$ flickr_upload --auth
+	1. Enter the following URL into your browser
+
+	http://flickr.com/services/auth?api_sig=<...>&frob=<...>&perms=write&api_key=<...>
+
+	2. Follow the instructions on the web page
+	3. Hit <Enter> when finished.
+	Your authentication token for this application is
+	<token>
+
+It's recommended that you keep the C<<token>> somewhere handy:
+
+   echo auth_token=<token> >~/.flickrrc
+
+Uploading a bunch of images becomes as easy as:
+
+   flickr_upload --tag 'dog' 'kernel in a window.jpg' 'sad in sunbeam.jpg'
 
 =head1 CONFIGURATION
 
