@@ -1,12 +1,12 @@
 use ExtUtils::MakeMaker;
 
 sub MY::postamble {
-	return "ChangeLog:\n\tcvs2cl -r --no-wrap --show-dead -S --utc\n\n";
+	return "ChangeLog:Makefile\n\tgit-log --pretty=full . >ChangeLog \n\n";
 }
 
 WriteMakefile(
 	NAME              => 'Flickr::Upload',
-	VERSION_FROM      => 'Upload.pm',
+	VERSION           => '1.26',
 	ABSTRACT          => 'Module for uploading images to flickr.com',
 	AUTHOR            => 'Christophe Beauregard <cpb@cpan.org>',
 	PREREQ_PM         => {

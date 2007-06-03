@@ -26,8 +26,6 @@ our @EXPORT_OK = ();
 
 our @EXPORT = qw();
 
-our $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
-
 # Preloaded methods go here.
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
