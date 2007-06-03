@@ -193,7 +193,7 @@ flickr_upload [--auth] --auth_token <auth_token> [--title <title>]
 
 =head1 DESCRIPTION
 
-Uploads images to the L<Flickr.com> service.
+Batch image uploader for the L<Flickr.com> service.
 
 =head1 OPTIONS
 
@@ -210,7 +210,8 @@ for actually uploading images.
 
 =item --auth_token <auth_token>
 
-Authentication token. Required.
+Authentication token. You B<must> get an authentication token using
+C<--auth> before you can upload images. See the L<EXAMPLES> section.
 
 =item --title <title>
 
@@ -264,7 +265,8 @@ of thirty minutes have (rarely) be know to occur.
 
 =head1 EXAMPLES
 
-First, you need to get an authentication token:
+First, you need to get an authentication token. This is a requirement
+driven by how Flickr manages third-party applications:
 
    cpb@earth:~$ flickr_upload --auth
 	1. Enter the following URL into your browser
@@ -276,20 +278,21 @@ First, you need to get an authentication token:
 	Your authentication token for this application is
 	<token>
 
-It's recommended that you keep the C<<token>> somewhere handy:
+Unless you like typing long numbers on the command-line, you should 
+keep the C<<token>> somewhere handy like a configuration file:
 
    echo auth_token=<token> >~/.flickrrc
 
-Uploading a bunch of images becomes as easy as:
+Uploading a bunch of images is then as easy as:
 
    flickr_upload --tag 'dog' 'kernel in a window.jpg' 'sad in sunbeam.jpg'
 
 =head1 CONFIGURATION
 
-To avoid having to remember authentication tokens and such (or have them show up
-in the process table listings), default values will
-be read from C<$HOME/.flickrrc> if it exists. Any field defined there can, of
-course, be overridden on the command line. For example:
+To avoid having to remember authentication tokens and such (or have them
+show up in the process table listings), default values will be read from
+C<$HOME/.flickrrc> if it exists. Any field defined there can, of course,
+be overridden on the command line. For example:
 
 	# my config at $HOME/.flickrrc
 	auth_token=334455
