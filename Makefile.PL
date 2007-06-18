@@ -6,7 +6,7 @@ sub MY::postamble {
 
 WriteMakefile(
 	NAME              => 'Flickr::Upload',
-	VERSION           => '1.27',
+	VERSION_FROM      => 'Upload.pm',
 	ABSTRACT          => 'Module for uploading images to flickr.com',
 	AUTHOR            => 'Christophe Beauregard <cpb@cpan.org>',
 	PREREQ_PM         => {

@@ -11,6 +11,8 @@ use HTTP::Request::Common;
 use Flickr::API;
 use XML::Parser::Lite::Tree;
 
+our $VERSION = '1.28';
+
 our @ISA = qw(Exporter Flickr::API);
 
 # Items to export into callers namespace by default. Note: do not export
