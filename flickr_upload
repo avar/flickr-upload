@@ -196,6 +196,9 @@ flickr_upload [--auth] --auth_token <auth_token> [--title <title>]
 
 Batch image uploader for the L<Flickr.com> service.
 
+L<flickr_upload> may also be useful for generating authentication tokens
+against other API keys/secrets (i.e. for embedding in scripts).
+
 =head1 OPTIONS
 
 =over 4
@@ -247,13 +250,43 @@ The following works in L<bash>:
 
 Flickr periodically adds new features to the uploading API, and these are
 almost always implemented as new key/value pairs. Rather than waiting for
-a new L<Flickr::Upload> release, you can specify I<any> argument using
-C<--option>.
+a new L<Flickr::Upload> release, you can specify any of the upload
+API's optional arguments using C<--option>.
 
   flick_upload --option content_type=1 --tag='cats' two_cats.jpg
 
-Behaviour of option unknown to the Flick upload API is entirely dependent
-on how nice Flickr is feeling.
+You may also use C<--option> rather than L<flickr_upload>'s command-line
+options:
+
+  flickr_upload --option is_public=1 --option title='cats' two_cats.jpg
+
+While Flickr may add new options at any time (see
+L<http://flickr.com/services/api/upload.api.html> for the most up-to-date
+list), currently known options include:
+
+=over 4
+
+=item --option safety_level=<1|2|3>
+
+Override the default C<safety_level> notation.
+Set to 1 for Safe, 2 for Moderate, or 3 for Restricted.
+Refer to L<http://www.flickr.com/help/filters/>.
+
+=item --option content_type=<1|2|3>
+
+Override the default C<content_type> notation.
+Set to 1 for Photo, 2 for Screenshot, or 3 for Art/Illustration.
+Refer to L<http://www.flickr.com/help/filters/>.
+
+=item --option hidden=<1|2>
+
+Override the default C<hidden> notation.
+Set to 1 to keep the photo in global search results, 2 to hide from public
+earches.
+
+=back 4
+
+Note that options unknown to Flickr will result in undefined behaviour.
 
 =item --key <api_key>
 
@@ -262,8 +295,9 @@ on how nice Flickr is feeling.
 Your own API key and secret. This is useful if you want to use
 L<flickr_upload> in auth mode as a token generator. You need both C<key>
 and C<secret>. Both C<key> and C<secret> can be placed in C<~/.flickrrc>,
-allowing you to mix L<flickr_upload> with your own scripts using a single
-API key and authentication token.
+allowing to mix L<flickr_upload> with your own scripts using the same
+API key and authentication token. Getting your own API key and secret is
+encouraged if you're tying L<flickr_upload> to some automated process.
 
 =item <photos...>
 
@@ -292,7 +326,7 @@ driven by how Flickr manages third-party applications:
 	<token>
 
 Unless you like typing long numbers on the command-line, you should 
-keep the C<<token>> somewhere handy like a configuration file:
+keep the C<<token>> somewhere handy, like a configuration file:
 
    echo auth_token=<token> >~/.flickrrc
 
@@ -313,6 +347,9 @@ be overridden on the command line. For example:
 	is_friend=1
 	is_family=1
 
+Note, however, that these defaults override the defaults you've assigned in
+your Flickr profile. You may want to do all that stuff in one place.
+
 =head1 BUGS
 
 Error handling could be better.
@@ -326,5 +363,9 @@ Christophe Beauregard, L<cpb@cpan.org>.
 L<flickr.com>
 
 L<Flickr::Upload>
+
+L<http://flickr.com/services/api/>
+
+L<http://www.flickr.com/help/filters/>
 
 =cut
