@@ -52,7 +52,7 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
-my $version = qw($Revision$)[1];
+my $version = $Flickr::Upload::VERSION;
 
 my $ua = Flickr::Upload->new( {'key' => $api_key, 'secret' => $not_so_secret} );
 $ua->agent( "flickr_upload/$version" );
