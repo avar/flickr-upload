@@ -1,7 +1,14 @@
 use ExtUtils::MakeMaker;
 
 sub MY::postamble {
-	return "ChangeLog:Makefile\n\tgit-log --pretty=full . >ChangeLog \n\n";
+	return <<END;
+ChangeLog: Makefile
+	git-log --pretty=full . >ChangeLog
+
+META.yml: Makefile
+	touch META.yml
+
+END
 }
 
 WriteMakefile(
@@ -18,6 +25,6 @@ WriteMakefile(
 		'Getopt::Long' => 1,
 	},
 	'EXE_FILES' => [ 'flickr_upload' ],
-	'clean' => { FILES => 'ChangeLog' },
-	'depend' => { 'distdir' => 'ChangeLog' },
+	'clean' => { FILES => 'ChangeLog META.yml' },
+	'depend' => {'create_distdir' => 'ChangeLog  META.yml'},
 );
