@@ -95,7 +95,7 @@ API key and the C<secret> is the API secret associated with it. To get an
 API key and secret, go to L<http://www.flickr.com/services/api/key.gne>.
 
 The resulting L<Flickr::Upload> instance is a subclass of L<Flickr::API>
-and thus can be used for any other Flickr API calls. Note also that
+and can be used for any other Flickr API calls.  As such,
 L<Flickr::Upload> is also a subclass of L<LWP::UserAgent>.
 
 =head2 upload
@@ -127,7 +127,6 @@ L<http://flickr.com/services/api/upload.async.html>. The caller can then
 periodically poll for a photo id using the C<check_upload> method.
 
 =cut
-#'
 
 sub upload($%) {
 	my $self = shift;
@@ -170,7 +169,6 @@ response.  The returned list isn't guaranteed to be in any particular order.
 This function polls a web server, so avoid calling it too frequently.
 
 =cut
-#'
 
 sub check_upload {
 	my $self = shift;
@@ -229,7 +227,6 @@ Returns a standard L<HTTP::Response> POST object. The caller can manually
 do the upload or just call the L<upload_request> function.
 
 =cut
-#'
 
 sub make_upload_request {
 	my $self = shift;
@@ -283,7 +280,6 @@ API documentation, after an upload the user should be directed to the
 page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 =cut
-#'
 
 sub upload_request($$) {
 	my $self = shift;
