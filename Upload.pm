@@ -11,7 +11,7 @@ use HTTP::Request::Common;
 use Flickr::API;
 use XML::Parser::Lite::Tree;
 
-our $VERSION = '1.29';
+our $VERSION = '1.30';
 
 our @ISA = qw(Exporter Flickr::API);
 
@@ -289,13 +289,13 @@ sub upload_request($$) {
 
 	my $res = $self->request( $req );
 
-	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->content());
+	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->decoded_content());
 	return () unless defined $tree;
 
 	my $photoid = response_tag($tree, 'rsp', 'photoid');
 	my $ticketid = response_tag($tree, 'rsp', 'ticketid');
 	unless( defined $photoid or defined $ticketid ) {
-		print STDERR "upload failed:\n", $res->content(), "\n";
+		print STDERR "upload failed:\n", $res->decoded_content(), "\n";
 		return undef;
 	}
 
