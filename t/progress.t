@@ -29,10 +29,10 @@ my $req = $ua->make_upload_request(
 
 # all we want to do is replace the default content generator with something
 # that will spit out a '.' for each kilobyte and pass the data back.
-my $gen = $req->decoded_content();
+my $gen = $req->content();
 die unless ref($gen) eq "CODE";
 
-$req->decoded_content(
+$req->content(
 	sub {
 		my $chunk = &$gen();
 		print "." x (length($chunk)/1024) if defined $chunk;
@@ -42,9 +42,10 @@ $req->decoded_content(
 
 $ua->agent( "$0/1.0" );
 
+print "# ";
 my $photoid = $ua->upload_request( $req );
-ok( defined $photoid );
-
 print "\n";
+
+ok( defined $photoid );
 
 exit 0;
