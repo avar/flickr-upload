@@ -282,6 +282,71 @@ sub upload_request {
 	return (defined $photoid) ? $photoid : $ticketid;
 }
 
+=head2 file_length_in_encoded_chunk
+
+=cut
+
+sub file_length_in_encoded_chunk
+{
+	my ($chunk, $s, $img_size) = @_;
+
+    $$s = {} unless ref $$s eq 'HASH';
+
+	# If we've run past the end of the image there's nothing to do but
+	# report no image content in this sector.
+	return 0 if $$s->{done};
+
+	unless ($$s->{in}) {
+		# Since we haven't found the image yet append this chunk to
+		# our internal data store, we do this because we have to do a
+		# regex match on m[Content-Type...] which might be split
+		# across multiple chunks
+        $$s->{data} .= defined $$chunk ? $$chunk : '';
+
+		if ($$s->{data} =~ m[Content-Type: image/[a-z-]+\r\n\r\n]g) {
+			# We've found the image inside the stream, record this,
+			# delete ->{data} since we don't need it, and see how much
+			# of the image this particular chunk gives us.
+			$$s->{in} = 1;
+			my $size = length substr($$s->{data}, pos($$s->{data}), -1);
+			delete $$s->{data};
+
+			$$s->{size} = $size;
+
+			if ($$s->{size} >= $img_size) {
+				# The image could be so small that we've already run
+				# through it in chunk it starts in, mark as done and
+				# return the total image size
+
+				$$s->{done} = 1;
+				return $img_size;
+			} else {
+				return $$s->{size};
+			}
+		} else {
+			# Are we inside the image yet? No!
+			return 0;
+		}
+	} else {
+		my $size = length $$chunk;
+
+		if (($$s->{size} + $size) >= $img_size) {
+			# This chunk finishes the image
+
+			$$s->{done} = 1;
+
+			# Return what we had left
+			return $img_size - $$s->{size};
+		} else {
+			# This chunk isn't the last one
+
+			$$s->{size} += $size;
+
+			return $size;
+		}
+	}
+}
+
 1;
 __END__
 

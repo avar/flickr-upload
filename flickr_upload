@@ -131,28 +131,21 @@ while( my $photo = shift @ARGV ) {
 			ETA => 'linear',
 		});
 
-		my $line = 0;
 		my $state;
-		my $byte_count = 0;
-
-		open my $log, '>', '/tmp/post_log' or die $!;
+		my $size;
 
 		$req->content(
 			sub {
 				my $chunk = &$gen();
-				print $log $chunk; #length $chunk, "\n" if $chunk;
-				$line += 1;
 
-#				$byte_count += file_length_in_encoded_chunk($line, \$chunk);
-				$byte_count += file_length_in_encoded_chunk(\$chunk, \$state);
-				$progress->update($byte_count);
+				$size += Flickr::Upload::file_length_in_encoded_chunk(\$chunk, \$state, $photo_size);
+				$progress->update($size);
 
 				return $chunk;
 			}
 		);
 
 		$rc = $ua->upload_request( $req );
-		close $log;
 	} else {
 		print 'Uploading ', $photo, '...';
 		$rc = $ua->upload( 'photo' => $photo, %args );
@@ -167,8 +160,6 @@ while( my $photo = shift @ARGV ) {
 
 	print "\n";
 }
-
-exit 0; # XXX
 
 # check
 print "Waiting for upload results (ctrl-C if you don't care)...\n";
@@ -234,45 +225,6 @@ sub getToken {
 
 	# FIXME: error checking, please.
 	return $res->{tree}->{children}->[1]->{children}->[1]->{children}->[0]->{content};
-}
-
-# Since decode_content doesn't work on multipart chunks this is a
-# dirty hack to figure out how much of a file is present in a HTTP
-# stream given a chunk number and the content of the chunk. In the
-# first few chunks we strip out other HTTP headers and subtract their
-# length from our count. This is superevil and may only work on my LWP
-# version.
-sub file_length_in_encoded_chunk
-{
-	no warnings;
-	my ($n, $ref) = @_;
-	my $chunk = $$ref;
-	my $size = length $chunk;
-
-	if ($n == 1)
-	{
-		return 0;
-	}
-	elsif ($n == 2)
-	{
-		my ($garbage) = $chunk =~ m[^ (.*? Content-Type:\ \w+/\w+ \r\n)]xs;
-		# 2: HACK: There's a stray newline somewhere in the
-		# /Content-Disposition hack/, hack more around it.
-		return $size - length($garbage) - 2;
-	}
-	elsif ($chunk =~ /Content-Disposition: /)
-	{
-		return 0;
-	}
-	else
-	{
-		return $size;
-	}
-}
-
-sub file_length_in_encoded_chunk2
-{
-	my ($ref, $state) = @_;
 }
 
 __END__
