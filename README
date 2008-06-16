@@ -1,0 +1,40 @@
+Flickr::Upload
+==============
+
+Uploader for flickr.com
+
+INSTALLATION
+============
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+============
+
+- LWP
+- XML::Parser::Lite::Tree
+- Flickr::API
+
+EXAMPLES
+========
+
+flickr_upload is a completely functional batch uploading tool. There's also
+a good amount of examples included as tests in t/ of the source
+distribution. And you can always ask me how to do something if it's not
+obvious. I might even know.
+
+COPYRIGHT AND LICENCE
+=====================
+
+Copyright (C) 2004,2005 by Christophe Beauregard
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.3 or,
+at your option, any later version of Perl 5 you may have available.
+
+This module is not an official Flickr.com (or Ludicorp, or Yahoo) service.

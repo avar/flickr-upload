@@ -1,0 +1,545 @@
+commit 0aa13ed44f5bcb64cd01994823c406162fe1fb10
+Author: cpb <cpb@localhost.localdomain>
+Commit: cpb <cpb@localhost.localdomain>
+
+    *: patch from Pascal Terjan to fix
+      http://rt.cpan.org/Ticket/Display.html?id=33750
+    *: also fix t/progress.t
+    *: bump version to 1.30
+
+commit 7c3ce4a0e76e48266359a6c4c4e54f82b64add97
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Minor documentation cleanups
+
+commit 81380665d8e465bc69680395bf6647c6d9f7c632
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    oops, forgot to commit that. Same as last, just some build fixes.
+
+commit d1a6550871f973f3df0b262f0646c8a5b6bb896a
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Clean up the build dependencies so the generated files actually do get
+    generated when we make a dist.
+
+commit a3e8aa2cec4da0f2f72a78dd2d87ff5723416180
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Drop some files we're no longer using/maintaining. We can always get 'em back.
+
+commit db32324d302838a26288326b57f789f61a5beef2
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Oops, not using CVS anymore. Use $Flickr::Upload::VERSION.
+
+commit 55339492be24b9431de9068bc58d3b185e6af15c
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Add some documentation suggested by Mark Atwood.
+
+commit 90867ead83ac5f317f6d4fbe2a018fd5185af4ce
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    <sigh> CPAN doesn't like it when you remove the $VERSION from a module.
+    So we'll just revert the whole "move into Makefile.PL" thing.
+
+commit 30640fd1f34472de6834f5c1745b62f199529ff4
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    (#23) recent change to ExtUtils::MakeMaker appears to not cope with a missing
+    META.yml... Even though it generates one anyways.
+
+commit 229ba961c8417211dedb236da82edd8ae92f167f
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    bump the version
+
+commit a5644ff483968e33ac8eabb6b54f30e986be3cbb
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Added a --option parameter so users can just add arbitrary options (like the
+    new filtering stuff) without waiting for a new Flickr::Upload release.
+
+commit 0d0e191e463be5fff2a8d59d173276fdfb4c1bc2
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Bump revision to 1.26
+    
+    Update Makefile.PL and Upload.pm to reflect switch to GIT, which means
+    cvs2cl won't generate a ChangeLog and we need to bump the version number
+    manually.
+
+commit 335cd62bce2b079273126c26fdfa6d7b47664dcd
+Author: cpb <cpb@earth.localdomain>
+Commit: cpb <cpb@earth.localdomain>
+
+    Refine the authentication documentation just a touch.
+
+commit b8978e79aeb1cd7c76c4c77851a4f94079a2039f
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Documentation: add an "EXAMPLE" section to clarify how to get started. Fix
+    some spelling and formatting issues.
+
+commit 8aeb576048eeb644f406af2dfe0e35811acc5994
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    oops, that's Pod::Usage
+
+commit a1f3aa9af0198085a33bb211a7c29977b7495514
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    http://rt.cpan.org/Ticket/Display.html?id=25521
+    
+    Add Pod::Usage and Getopt::Long to dependencies
+
+commit 8e2ccbf7f57c694cba06fc36f069d0f761d739b2
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    http://rt.cpan.org/Ticket/Display.html?id=23990
+    
+    =Flickr::Upload::new()= takes a hashref (ala =Flickr::API=).
+
+commit 1577da6919d536c14f177a8f480810be38d6d6e1
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    upload URI has changed
+
+commit 5847e77c2e9bbe0f84d257df29b2535bce51a05c
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    add some notes on generating tags with embedded spaces to the --tag
+    documentation.
+
+commit 91378e84c42713c9445d495d79d7345c3ec65722
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    _is_friend_ should be _is_family_
+    
+    https://rt.cpan.org/NoAuth/Bug.html?id=16930
+
+commit 2428dbfa08f30b13646ffe912019597cdbdde56a
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    change the test image name. Needs to go in MANIFEST...
+
+commit 0e41b62f13556f7e1dbb348ea36ee98b7b0b1730
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#11) key and secret can be specified in =~/.flickrrc=. This allows a user to get one
+    API key, authenticate against it, and use =flickr_upload= and a bunch of personal
+    scripts with just =~/.flickrc= for storing the authentication info.
+
+commit bf961bf3fd06972a0a7c93e4ba6a7196c7e1ea0b
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#11) change of ownership
+
+commit de074b934cd1651c51445dd20297421edd8a42c7
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#11) some documentation cleanups
+
+commit 225b8889227ac153592ebf823ca0db5e37183d52
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#8) really remove refs to =thickr_upload=.
+
+commit 51a6f572dc554980db94eaf0e95749618e95ceab
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#8) switched to Debian, =cvs2cl= is called something else
+
+commit 9dc04fe46d45a1b93654baf16911dfa1c5aa3a23
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#8) remove some debug code, handle undef photo situation.
+
+commit afaf372d16120fc9417da67dd2b010239faed954
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#8) first stab at getting =Flickr::Upload= working with the new authentication.
+    
+    *: had to completely gut the interface and inherit from =Flickr::API=.
+    *: straight and async uploading via =flickr_upload= _works_
+    *: this means =Flickr::Upload::upload()= and =Flickr::Upload::check_upload()= methods
+    are good.
+    *: tests /Flickr-Upload/t/request.t and /Flickr-Upload/t/progress.t are _not_
+    passing, although the progress test is still uploading the image.
+
+commit 3d65663f688cd047e65549ae36c9f75fd6b692b0
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    (#8) remove =thickr_upload= for now.
+
+commit ab3a30a976e8e0bcb37f1d3bb9b3cdaa546437ee
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    non-blocking uploading...
+    
+    *: spawn the uploading in a separate process (via fork) and process the
+    results in a pipe using Tk fileevent.
+    *: error handling needs a bit of work
+    *: need to manage the process id of the uploader so that we clean up when
+    we quit.
+    *: really need an upload manager window so we can monitor the entire queue
+    *: also need to check for ticket completions
+
+commit 87971fa148f353ac08c76b54dd99c737cb2a4800
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    tweak ChangeLog options
+
+commit b1c1baf10584580c6705677b27824716b7ba5570
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    add blurb about thickr_upload
+
+commit 6fcc71ac2556f70c7c6a024b943efcb2483dfacd
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    rename thkr_upload to thickr_upload. Long story, won't bother explaining.
+
+commit b4e1062a1abdd94c13af72d1374e5faf3f8a8ee0
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    remove the logo stuff. We'll just show some blankness.
+
+commit 09e8036acc85ec3613067e675e9064a2eb2da1fb
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: remove some debug junk
+    *: replace Tk::FileSelect with Tk::getOpenFile() so we can do multiple
+    selection. This really streamlines things.
+
+commit 39dcc8fb9706a95724c74b3033b55ee54fb9a28d
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    fix comment about best way to use LWP from Tk
+
+commit a2dd6788537eaea0248df182d4fe339bd775232a
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    more churning on the uploading. Nicer cleanup.
+
+commit 34698d103bb1030e02cc12a1b8e2fada8df35cde
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: clean up preview a bit. Now properly scales images to fit, manages
+    memory better, etc.
+    *: make preview area a drag and drop site for photos. DnD code is a little
+    crufty but works
+    *: update menus a touch. Help is actually in the right place
+    *: switch to messageBox for Help|About
+    *: documentation
+    *: use Tk::HTML::IO to, hopefully, do better IO for the upload. Haven't
+    tested this and need to refine the upload process some anyways. We really
+    want something like an "upload manager" view of what's happening.
+    *: new photos are added at the front of the list. Just better feedback.
+
+commit 1b1bc4ff703c86e0309c592ff404bc12f7da5702
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    added initial cut at thkr_upload, a Tk-based GUI upload client
+
+commit 16521cdf7839e6d65ceae5672ff1d8740ed4e806
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    update documentation a touch. It's a new year, you know.
+
+commit 8e2a109b5fd1f134860a28e50d02dbaecac4b11f
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    use the async option to pipeline the upload process so we wait for photoid
+    assignments after _all_ the uploads are completed. This should reduce the
+    overall time are multi-image batch uploads quite a bit.
+
+commit b45ab673c66a6938cc0ca204533dff22e269065c
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    added async.t to MANIFEST
+
+commit 9adb83b7062c36b5a10651081fc4261730d87e51
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    chunk could be undefined.
+
+commit 20c159fe3faaa92613b760391af5f701eab11c3d
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: modified make_upload_request() to allow async and properly handle
+    returned ticket ids.
+    
+    *: added check_upload() function to check status up async tickets
+    
+    *: added t/async.t to test/demo async functionality
+
+commit 75023c5c351994bee5135cb38db4748e309d36eb
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    trim down commentary on async uploading. It _might_ be useful to such an
+    API, given recent problems with delays in the uploading process (in
+    something like sync conduits, for example).
+
+commit 022cd638227c8ddb88551dacae70bf3599d14354
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    L<> in NAME section gets interpreted as links to a man page, leading to a
+    synopsis like "Flickr::Upload - Upload images to the flickr.com manpage".
+
+commit db41cb1e7e53f1603682d0239ec81671a3570e75
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Another Michael, another bug report...
+    
+    _Michael Parker says:_
+    
+    I noticed this in the flickr_upload script distributed with the
+    Flickr::Upload package (at least until 1.10):
+    
+       'public=i' => sub { $args{is_public} = $_[1] },
+       'friend=i' => sub { $args{is_public} = $_[1] },
+       'family=i' => sub { $args{is_public} = $_[1] },
+    
+    It looks like a cut and paste error, using is_public for all 3 rather
+    than is_friend and is_family.
+
+commit 1a49e42dc7a07388d7d1f9d7942752586eb2ff4d
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Grrr... forgot the perl version dependency in Makefile.PL...
+
+commit 9dabf7cd33ec4c0622db9848b6ccaa9262e2ad2c
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Michael Stillwell pointed out that the restriction to perl >= 5.8.3 was
+    silly. 5.6.1+ would be fine, and probably even earlier.
+
+commit 168a4c60f9b0da4380c708a99bbbe69ee192bef1
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    oops, not -no-wrap
+
+commit 4e5e973d5b16367e3f740226b5703d67aa4f6087
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Fixup the cvs2cl.pl options to something a bit nicer.
+
+commit 1738342d2fb672ed724f9715b7f2fd3948c1e58b
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    add some Makefile.PL magic to ensure that ChangeLog is removed by make
+    clean and generated by make dist. Of course, we're building dist with
+    access to my CVS repository...
+
+commit ed528c88942ca13143ae985a4322d79cffe565ec
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Add an example/test which uses the DYNAMIC_FILE_UPLOAD functionality to
+    implement some progress feedback.
+
+commit 76ce429ff0a6a4ed3658dc9a0bda147d82e49c33
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    minor formatting tweak, but I also need to bump the version to do a new
+    release.
+
+commit 120e3ed848a2299539defcef1fa31c5dbe861797
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: HACK for the LWP content length warning. Apparently, add_parts() doesn't
+    cause the existing content length to be invalidated and LWP complains
+    when it recalculates it anyways.
+    
+    *: tweak description... sometimes the :: doesn't make it through.
+
+commit 651cc3b381e520e5fe9d4577886a30f513e934cd
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: oops, chomp the password
+    
+    *: make test image private. We don't really need to spam the tag index with
+    kernel and perl over and over again...
+
+commit e9dc24f05c2d1911c925ca852527341702aad125
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    make tests fail gracefully if no password file provided. This way I can do
+    sane testing but cpansmoke won't complain.
+
+commit 2cca0f8489aef9b41e00847f116713d8ebf8210b
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: added make_upload_request and upload_request functions to allow for more
+    direct manipulation of the HTTP::Request structure.
+    
+    *: added t/request.t to demonstrate how said functionality can be used to
+    upload images directly from memory rather than having to create temporary
+    files. It appears, unfortunately, that LWP doesn't like the way I do
+    things, but it only complains rather than bailing. The end result works.
+
+commit 6e1cd624a20522663cb52e8328b0e2c131c2b110
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    strip out the test comments
+
+commit b088c503167f022fb00307cf393ba5d14eaa7d42
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: don't export upload() by default.
+    *: upload() returns the resulting photo identifier on success (still undef
+    on failure). We're also nicer about the resulting failure message.
+
+commit 1593c0725b5b41de6456418fbca6b3eb9253901b
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    *: output uploaded photoid for each image
+    *: read config from ~/.flickrrc.
+
+commit 88d3af5b58141c055639c9ae6dcecb70455f9a39
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    in theory, zero might be a valid photoid. Probably not, but...
+
+commit 4bc4db928ad7ccc081ad40fb465dbcd587b88d4f
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    change how we 'use' the module.
+
+commit 1c3197d64ebf0dafb12c7ebb7479b338d4b8bb0b
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    assorted documentation niceties. Dunno how I forgot about the README...
+
+commit 446c029849d316a3d6ba874f1f4d9b6544b16564
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    remove META.yml from CVS
+
+commit 8dafaad6d77bbdb0fb934c67f598adcefea6d174
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    - assorted pod additions
+    - cleanup failure handling
+
+commit 315cd7264e558afc6820611f61ebaded84faceb6
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    - added flickr_upload script
+    - clean up Makefile.PL (i.e. add prereqs, etc).
+
+commit 52babd4542b2b9ec8411fbfee6a794f1b7f9d6ca
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    tags now just a string rather than list ref
+
+commit 546e1cc5873045d789e014d57f18fa5c5b142fca
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    assorted fixes:
+    - pod fixes
+    - tags now just a string rather than a list ref
+
+commit cdfefc38123835bcdf05635a8d4098cf5d051ed0
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    upload() works
+
+commit 07876da007057282e824e9b537b9ca42c6e13955
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    change tests
+
+commit f74ff6aa2a98258c3d009298c4b78b3e4eacdfcd
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    adjusted testing, added test image
+
+commit 6400a15b483e9f6c49026a164aed88a86c5dcb46
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    laid out pod, initial stab at how API will work
+
+commit 0af867437f488872435f92fadf9f93e95e91e82c
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    added META.yml
+
+commit 8e4a52816aa8ae1b1c6a14a2be371b22fedbbc99
+Author: cpb <cpb>
+Commit: cpb <cpb>
+
+    Initial revision
