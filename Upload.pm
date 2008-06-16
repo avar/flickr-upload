@@ -284,6 +284,41 @@ sub upload_request {
 
 =head2 file_length_in_encoded_chunk
 
+	$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
+	my $photo = 'image.jpeg';
+	my $photo_size = (stat($photo))[7];
+	my $req = $ua->make_upload_request( ... );
+	my $gen = $req->content();
+	die unless ref($gen) eq "CODE";
+
+	my $state;
+	my $size;
+
+	$req->content(
+		sub {
+			my $chunk = &$gen();
+
+			$size += Flickr::Upload::file_length_in_encoded_chunk(\$chunk, \$state, $photo_size);
+
+			warn "$size bytes have now been uploaded";
+
+			return $chunk;
+		}
+	);
+
+	$rc = $ua->upload_request( $req );
+
+This subroutine is tells you how much of a chunk in a series of
+variable size multipart HTTP chunks contains a single file being
+uploaded given a reference to the current chunk, a reference to a
+state variable that lives between calls, and the size of the file
+being uploaded.
+
+It can be used used along with L<HTTP::Request::Common>'s
+$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD facility to implement
+upload progress bars or other upload monitors, see L<flickr_upload>
+for a practical example and F<t/progress_request.t> for tests.
+
 =cut
 
 sub file_length_in_encoded_chunk
@@ -303,7 +338,7 @@ sub file_length_in_encoded_chunk
 		# across multiple chunks
         $$s->{data} .= defined $$chunk ? $$chunk : '';
 
-		if ($$s->{data} =~ m[Content-Type: image/[a-z-]+\r\n\r\n]g) {
+		if ($$s->{data} =~ m[Content-Type: .*?\r\n\r\n]g) {
 			# We've found the image inside the stream, record this,
 			# delete ->{data} since we don't need it, and see how much
 			# of the image this particular chunk gives us.
