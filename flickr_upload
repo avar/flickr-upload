@@ -308,7 +308,7 @@ Flickr URL will be generated. L<flickr_upload> uses asynchronous uploading
 so while the image is usually transferred fairly quickly, it might take
 a while before it's actually available to users. L<flickr_upload> will
 wait around for that to complete, but be aware that delays of upwards
-of thirty minutes have (rarely) be know to occur.
+of thirty minutes have (rarely) been know to occur.
 
 =head1 EXAMPLES
 
