@@ -237,7 +237,8 @@ flickr_upload - Upload photos to C<flickr.com>
 
 flickr_upload [--auth] --auth_token <auth_token> [--title <title>]
 	[--description description] [--public <0|1>] [--friend <0|1>]
-	[--family <0|1>] [--tag <tag>] [--option key=value] <photos...>
+	[--family <0|1>] [--tag <tag>] [--option key=value] [--progress]
+    <photos...>
 
 =head1 DESCRIPTION
 
@@ -252,7 +253,8 @@ against other API keys/secrets (i.e. for embedding in scripts).
 
 =item --progress
 
-Display a progress bar with L<Term::ProgressBar>
+Display a progress bar for each upload with L<Term::ProgressBar>. That
+optional module will have to be installed on the system.
 
 =item --auth
 
