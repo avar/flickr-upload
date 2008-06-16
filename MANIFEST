@@ -1,13 +1,14 @@
 ChangeLog
+flickr_upload
 Makefile.PL
 MANIFEST
+META.yml			Module meta-data (added by MakeMaker)
 README
-Upload.pm
-META.yml                                 Module meta-data (added by MakeMaker)
-t/upload.t
-t/failupload.t
-t/request.t
-t/progress.t
 t/async.t
+t/failupload.t
+t/progress.t
+t/progress_request.t
+t/request.t
 t/testimage.jpg
-flickr_upload
+t/upload.t
+Upload.pm
