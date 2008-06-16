@@ -3,9 +3,6 @@ package Flickr::Upload;
 use strict;
 use warnings;
 
-require Exporter;
-use AutoLoader qw(AUTOLOAD);
-
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use Flickr::API;
@@ -13,24 +10,7 @@ use XML::Parser::Lite::Tree;
 
 our $VERSION = '1.30';
 
-our @ISA = qw(Exporter Flickr::API);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Flickr::Upload ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ();
-
-our @EXPORT_OK = ();
-
-our @EXPORT = qw();
-
-# Preloaded methods go here.
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
+our @ISA = qw(Flickr::API);
 
 sub response_tag {
 	my $t = shift;
