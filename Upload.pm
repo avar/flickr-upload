@@ -108,7 +108,7 @@ periodically poll for a photo id using the C<check_upload> method.
 
 =cut
 
-sub upload($%) {
+sub upload {
 	my $self = shift;
 	die '$self is not a Flickr::Upload' unless $self->isa('Flickr::Upload');
 	my %args = @_;
@@ -261,7 +261,7 @@ page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 =cut
 
-sub upload_request($$) {
+sub upload_request {
 	my $self = shift;
 	die "$self is not a LWP::UserAgent" unless $self->isa('LWP::UserAgent');
 	my $req = shift;
