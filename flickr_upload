@@ -130,6 +130,7 @@ while( my $photo = shift @ARGV ) {
 			count => $photo_size,
 			ETA => 'linear',
 		});
+		$progress->minor(0);
 
 		my $state;
 		my $size;
