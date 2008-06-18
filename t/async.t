@@ -36,7 +36,7 @@ do {
 	my @checked = $ua->check_upload( $rc );
 
 	for( @checked ) {
-		if( $_->{id} == $rc and $_->{complete} ) {
+		if( $_->{id} eq $rc and $_->{complete} ) {
 			ok( $_->{complete} == 1 );	# completed
 			ok( defined $_->{photoid} and $_->{photoid} );
 			print STDERR "Got photoid '$_->{photoid}'\n";

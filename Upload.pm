@@ -102,9 +102,10 @@ user should be directed to the page
 L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 If the C<async> option is non-zero, the photo will be uploaded
-asynchronously and a successful upload returns a ticket number. See
+asynchronously and a successful upload returns a ticket identifier. See
 L<http://flickr.com/services/api/upload.async.html>. The caller can then
-periodically poll for a photo id using the C<check_upload> method.
+periodically poll for a photo id using the C<check_upload> method. Note
+that photo and ticket identifiers aren't necessarily numeric.
 
 =cut
 
