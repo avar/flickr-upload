@@ -326,7 +326,7 @@ sub file_length_in_encoded_chunk
 {
 	my ($chunk, $s, $img_size) = @_;
 
-    $$s = {} unless ref $$s eq 'HASH';
+	$$s = {} unless ref $$s eq 'HASH';
 
 	# If we've run past the end of the image there's nothing to do but
 	# report no image content in this sector.
@@ -337,7 +337,7 @@ sub file_length_in_encoded_chunk
 		# our internal data store, we do this because we have to do a
 		# regex match on m[Content-Type...] which might be split
 		# across multiple chunks
-        $$s->{data} .= defined $$chunk ? $$chunk : '';
+		$$s->{data} .= defined $$chunk ? $$chunk : '';
 
 		if ($$s->{data} =~ m[Content-Type: .*?\r\n\r\n]g) {
 			# We've found the image inside the stream, record this,
