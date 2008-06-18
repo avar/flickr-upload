@@ -8,7 +8,7 @@ use HTTP::Request::Common;
 use Flickr::API;
 use XML::Parser::Lite::Tree;
 
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 
 our @ISA = qw(Flickr::API);
 
