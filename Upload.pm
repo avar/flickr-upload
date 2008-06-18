@@ -3,9 +3,6 @@ package Flickr::Upload;
 use strict;
 use warnings;
 
-require Exporter;
-use AutoLoader qw(AUTOLOAD);
-
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use Flickr::API;
@@ -13,24 +10,7 @@ use XML::Parser::Lite::Tree;
 
 our $VERSION = '1.30';
 
-our @ISA = qw(Exporter Flickr::API);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Flickr::Upload ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ();
-
-our @EXPORT_OK = ();
-
-our @EXPORT = qw();
-
-# Preloaded methods go here.
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
+our @ISA = qw(Flickr::API);
 
 sub response_tag {
 	my $t = shift;
@@ -128,7 +108,7 @@ periodically poll for a photo id using the C<check_upload> method.
 
 =cut
 
-sub upload($%) {
+sub upload {
 	my $self = shift;
 	die '$self is not a Flickr::Upload' unless $self->isa('Flickr::Upload');
 	my %args = @_;
@@ -281,7 +261,7 @@ page L<http://www.flickr.com/tools/uploader_edit.gne?ids=$photoid>.
 
 =cut
 
-sub upload_request($$) {
+sub upload_request {
 	my $self = shift;
 	die "$self is not a LWP::UserAgent" unless $self->isa('LWP::UserAgent');
 	my $req = shift;
@@ -300,6 +280,106 @@ sub upload_request($$) {
 	}
 
 	return (defined $photoid) ? $photoid : $ticketid;
+}
+
+=head2 file_length_in_encoded_chunk
+
+	$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
+	my $photo = 'image.jpeg';
+	my $photo_size = (stat($photo))[7];
+	my $req = $ua->make_upload_request( ... );
+	my $gen = $req->content();
+	die unless ref($gen) eq "CODE";
+
+	my $state;
+	my $size;
+
+	$req->content(
+		sub {
+			my $chunk = &$gen();
+
+			$size += Flickr::Upload::file_length_in_encoded_chunk(\$chunk, \$state, $photo_size);
+
+			warn "$size bytes have now been uploaded";
+
+			return $chunk;
+		}
+	);
+
+	$rc = $ua->upload_request( $req );
+
+This subroutine is tells you how much of a chunk in a series of
+variable size multipart HTTP chunks contains a single file being
+uploaded given a reference to the current chunk, a reference to a
+state variable that lives between calls, and the size of the file
+being uploaded.
+
+It can be used used along with L<HTTP::Request::Common>'s
+$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD facility to implement
+upload progress bars or other upload monitors, see L<flickr_upload>
+for a practical example and F<t/progress_request.t> for tests.
+
+=cut
+
+sub file_length_in_encoded_chunk
+{
+	my ($chunk, $s, $img_size) = @_;
+
+    $$s = {} unless ref $$s eq 'HASH';
+
+	# If we've run past the end of the image there's nothing to do but
+	# report no image content in this sector.
+	return 0 if $$s->{done};
+
+	unless ($$s->{in}) {
+		# Since we haven't found the image yet append this chunk to
+		# our internal data store, we do this because we have to do a
+		# regex match on m[Content-Type...] which might be split
+		# across multiple chunks
+        $$s->{data} .= defined $$chunk ? $$chunk : '';
+
+		if ($$s->{data} =~ m[Content-Type: .*?\r\n\r\n]g) {
+			# We've found the image inside the stream, record this,
+			# delete ->{data} since we don't need it, and see how much
+			# of the image this particular chunk gives us.
+			$$s->{in} = 1;
+			my $size = length substr($$s->{data}, pos($$s->{data}), -1);
+			delete $$s->{data};
+
+			$$s->{size} = $size;
+
+			if ($$s->{size} >= $img_size) {
+				# The image could be so small that we've already run
+				# through it in chunk it starts in, mark as done and
+				# return the total image size
+
+				$$s->{done} = 1;
+				return $img_size;
+			} else {
+				return $$s->{size};
+			}
+		} else {
+			# Are we inside the image yet? No!
+			return 0;
+		}
+	} else {
+		my $size = length $$chunk;
+
+		if (($$s->{size} + $size) >= $img_size) {
+			# This chunk finishes the image
+
+			$$s->{done} = 1;
+
+			# Return what we had left
+			return $img_size - $$s->{size};
+		} else {
+			# This chunk isn't the last one
+
+			$$s->{size} += $size;
+
+			return $size;
+		}
+	}
 }
 
 1;
