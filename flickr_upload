@@ -16,6 +16,7 @@ my $help = 0;
 my $man = 0;
 my $auth = 0;
 my $progress = 0;
+my $check = 0;
 
 if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
 	while( <CONFIG> ) {
@@ -49,6 +50,7 @@ GetOptions(
 	'secret=s' => \$not_so_secret,
 	'auth' => \$auth,
 	'progress' => \$progress,
+	'check' => \$check,
 	'option=s' => \%args,
 ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -106,6 +108,11 @@ if( $auth ) {
 }
 
 pod2usage(1) unless exists $args{'auth_token'};
+
+if( $check ) {
+	exit( checkToken( $ua, $args{api_key}, $args{auth_token} ) );
+}
+
 pod2usage(1) unless @ARGV;
 
 $args{'tags'} = join( " ", @tags ) if @tags;
@@ -227,6 +234,23 @@ sub getToken {
 	return $res->{tree}->{children}->[1]->{children}->[1]->{children}->[0]->{content};
 }
 
+sub checkToken {
+	my $ua = shift;
+	my $key = shift;
+	my $token = shift;
+
+	my $res = $ua->execute_method("flickr.auth.checkToken",
+		{
+			'auth_token' => $token,
+			'api_key' => $key,
+		} );
+
+	# FIXME: this could be parsed, but I'm not going to get too fancy
+	print $res->decoded_content();
+
+	return 0;
+}
+
 __END__
 
 =head1 NAME
@@ -250,11 +274,6 @@ against other API keys/secrets (i.e. for embedding in scripts).
 =head1 OPTIONS
 
 =over 4
-
-=item --progress
-
-Display a progress bar for each upload with L<Term::ProgressBar>. That
-optional module will have to be installed on the system.
 
 =item --auth
 
@@ -336,6 +355,17 @@ Refer to L<http://www.flickr.com/help/filters/>.
 Override the default C<hidden> notation.
 Set to 1 to keep the photo in global search results, 2 to hide from public
 earches.
+
+=item --check
+
+Checks the authentication token via the flickr.auth.checkToken API call.
+This can be used to verify API keys and credentials without trying to
+upload an image. The output is the raw results of the API call.
+
+=item --progress
+
+Display a progress bar for each upload with L<Term::ProgressBar>. That
+optional module will have to be installed on the system.
 
 =back 4
 
