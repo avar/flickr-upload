@@ -382,6 +382,11 @@ allowing to mix L<flickr_upload> with your own scripts using the same
 API key and authentication token. Getting your own API key and secret is
 encouraged if you're tying L<flickr_upload> to some automated process.
 
+Note that if you do get an authentication token against your own API key
+and secret, you'll need to specify the key and secret along with the token
+when uploading images. The default L<flickr_upload> API key and token won't
+work in that case.
+
 =item <photos...>
 
 List of photos to upload. Uploading stops as soon as a failure is detected
