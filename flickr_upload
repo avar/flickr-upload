@@ -60,6 +60,7 @@ my $version = $Flickr::Upload::VERSION;
 
 my $ua = Flickr::Upload->new( {'key' => $api_key, 'secret' => $not_so_secret} );
 $ua->agent( "flickr_upload/$version" );
+$ua->env_proxy();
 
 if( $progress ) {
 	eval {
