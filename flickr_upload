@@ -357,6 +357,10 @@ Override the default C<hidden> notation.
 Set to 1 to keep the photo in global search results, 2 to hide from public
 earches.
 
+=back
+
+Note that options unknown to Flickr will result in undefined behaviour.
+
 =item --check
 
 Checks the authentication token via the flickr.auth.checkToken API call.
@@ -367,10 +371,6 @@ upload an image. The output is the raw results of the API call.
 
 Display a progress bar for each upload with L<Term::ProgressBar>. That
 optional module will have to be installed on the system.
-
-=back 4
-
-Note that options unknown to Flickr will result in undefined behaviour.
 
 =item --key <api_key>
 
@@ -398,6 +398,8 @@ so while the image is usually transferred fairly quickly, it might take
 a while before it's actually available to users. L<flickr_upload> will
 wait around for that to complete, but be aware that delays of upwards
 of thirty minutes have (rarely) been know to occur.
+
+=back
 
 =head1 EXAMPLES
 
