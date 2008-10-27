@@ -269,6 +269,7 @@ sub upload_request {
 	die "expecting a HTTP::Request" unless $req->isa('HTTP::Request');
 
 	my $res = $self->request( $req );
+	return () unless defined $res;
 
 	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->decoded_content());
 	return () unless defined $tree;
