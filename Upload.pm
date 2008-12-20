@@ -70,7 +70,7 @@ Upload an image to L<flickr.com>.
 			'secret' => '37465825'
 		});
 
-Instatiates a L<Flickr::Upload> instance. The C<key> argument is your
+Instantiates a L<Flickr::Upload> instance. The C<key> argument is your
 API key and the C<secret> is the API secret associated with it. To get an
 API key and secret, go to L<http://www.flickr.com/services/api/key.gne>.
 
