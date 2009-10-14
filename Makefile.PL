@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 sub MY::postamble {
 	return <<END;
 ChangeLog: Makefile
-	git-log --pretty=fuller --decorate . >ChangeLog
+	git log --pretty=fuller --decorate . >ChangeLog
 
 META.yml: Makefile
 	touch META.yml
