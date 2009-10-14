@@ -54,9 +54,9 @@ GetOptions(
 	'key=s' => \$api_key,
 	'secret=s' => \$not_so_secret,
 	'auth' => \$auth,
-	'progress' => \$progress,
+	'progress!' => \$progress,
 	'check' => \$check,
-	'report' => \$report,
+	'report!' => \$report,
 	'option=s' => \%args,
 ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -375,22 +375,24 @@ Checks the authentication token via the flickr.auth.checkToken API call.
 This can be used to verify API keys and credentials without trying to
 upload an image. The output is the raw results of the API call.
 
-=item --progress
+=item --progress, --no-progress
 
 Display a progress bar for each upload with L<Term::ProgressBar>. That
 optional module will have to be installed on the system.
 
-The default can be changed in the configuration file:
+The default is not to display a progress bar. That can be changed in
+the configuration file:
 
     echo progress=1 >~/.flickrrc
 
-=item --report
+=item --report, --no-report
 
 Report the status of each upload ticket after uploading the batch via
 L<Flickr::Upload's check_upload
 method|Flickr::Upload/check_upload>. On by default.
 
-The default can be changed in the configuration file:
+The default is to display a report after each upload. That can be
+changed in the configuration file:
 
     echo progress=0 >~/.flickrrc
 
