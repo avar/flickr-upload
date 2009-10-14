@@ -469,9 +469,11 @@ your Flickr profile. You may want to do all that stuff in one place.
 
 Error handling could be better.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Christophe Beauregard, L<cpb@cpan.org>.
+
+E<AElig>var ArnfjE<ouml>rE<eth> Bjarmason, <avar@cpan.org>.
 
 =head1 SEE ALSO
 

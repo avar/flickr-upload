@@ -410,15 +410,18 @@ L<http://flickr.com/services/api/>
 
 L<Flickr::API>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Christophe Beauregard, L<cpb@cpan.org>
+
+E<AElig>var ArnfjE<ouml>rE<eth> Bjarmason, <avar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
 This module is not an official Flickr.com (or Ludicorp, or Yahoo) service.
 
-Copyright (C) 2004,2005 by Christophe Beauregard
+Copyright (C) 2004-2008 by Christophe Beauregard and 2008-2009 by
+E<AElig>var ArnfjE<ouml>rE<eth> Bjarmason
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
