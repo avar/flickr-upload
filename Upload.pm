@@ -268,11 +268,28 @@ sub upload_request {
 	my $req = shift;
 	die "expecting a HTTP::Request" unless $req->isa('HTTP::Request');
 
-	my $res = $self->request( $req );
-	return () unless defined $res;
+	# Try 3 times to upload data. Without this flickr_upload is bound
+	# to die on large uploads due to some miscellaneous network
+	# issues. Timeouts on flickr or something else.
+	my ($res, $tree);
+	my $tries = 3;
+	for my $try (1 .. $tries) {
+		# Try to upload
+		$res = $self->request( $req );
+		return () unless defined $res;
 
-	my $tree = XML::Parser::Lite::Tree::instance()->parse($res->decoded_content());
-	return () unless defined $tree;
+		if ($res->is_success) {
+			$tree = XML::Parser::Lite::Tree::instance()->parse($res->decoded_content());
+			return () unless defined $tree;
+			last;
+		} else {
+			my $what_next = ($try == $tries ? "giving up" : "trying again");
+			my $status = $res->status_line;
+
+			print STDERR "Failed uploading attempt attempt $try/$tries, $what_next. Message from server was: '$status'\n";
+			next;
+		}
+	}
 
 	my $photoid = response_tag($tree, 'rsp', 'photoid');
 	my $ticketid = response_tag($tree, 'rsp', 'ticketid');
