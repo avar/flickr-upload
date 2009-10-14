@@ -17,6 +17,7 @@ my $man = 0;
 my $auth = 0;
 my $progress = 0;
 my $check = 0;
+my $report = 1;
 
 if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
 	while( <CONFIG> ) {
@@ -28,6 +29,10 @@ if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
 			$api_key = $2;
 		} elsif( $1 eq "secret" ) {
 			$not_so_secret = $2;
+		} elsif( $1 eq "progress" ) {
+			$progress = $2;
+		} elsif( $1 eq "report" ) {
+			$report = $2;
 		} else {
 			$args{$1} = $2;
 		}
@@ -51,6 +56,7 @@ GetOptions(
 	'auth' => \$auth,
 	'progress' => \$progress,
 	'check' => \$check,
+	'report' => \$report,
 	'option=s' => \%args,
 ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -170,24 +176,26 @@ while( my $photo = shift @ARGV ) {
 }
 
 # check
-print "Waiting for upload results (ctrl-C if you don't care)...\n";
-do {
-	sleep 1;
-	my @checked = $ua->check_upload( keys %tickets );
-	for( @checked ) {
-		if( $_->{complete} == 0 ) {
-			# not done yet, don't do anythig
-		} elsif( $_->{complete} == 1 ) {
-			# uploaded, got photoid
-			print "$tickets{$_->{id}} is at " .
+if( $report ) {
+	print "Waiting for upload results (ctrl-C if you don't care)...\n";
+	do {
+		sleep 1;
+		my @checked = $ua->check_upload( keys %tickets );
+		for( @checked ) {
+			if( $_->{complete} == 0 ) {
+				# not done yet, don't do anythig
+			} elsif( $_->{complete} == 1 ) {
+				# uploaded, got photoid
+				print "$tickets{$_->{id}} is at " .
 				"http://www.flickr.com/tools/uploader_edit.gne?ids=$_->{photoid}\n";
-			delete $tickets{$_->{id}};
-		} else {
-			print "$tickets{$_->{id}} failed to get photoid\n";
-			delete $tickets{$_->{id}};
+				delete $tickets{$_->{id}};
+			} else {
+				print "$tickets{$_->{id}} failed to get photoid\n";
+				delete $tickets{$_->{id}};
+			}
 		}
-	}
-} while( %tickets );
+	} while( %tickets );
+}
 
 exit 0;
 
@@ -371,6 +379,20 @@ upload an image. The output is the raw results of the API call.
 
 Display a progress bar for each upload with L<Term::ProgressBar>. That
 optional module will have to be installed on the system.
+
+The default can be changed in the configuration file:
+
+    echo progress=1 >~/.flickrrc
+
+=item --report
+
+Report the status of each upload ticket after uploading the batch via
+L<Flickr::Upload's check_upload
+method|Flickr::Upload/check_upload>. On by default.
+
+The default can be changed in the configuration file:
+
+    echo progress=0 >~/.flickrrc
 
 =item --key <api_key>
 
